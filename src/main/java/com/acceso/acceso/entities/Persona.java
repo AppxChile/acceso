@@ -2,6 +2,7 @@ package com.acceso.acceso.entities;
 
 import java.util.List;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -14,10 +15,25 @@ public class Persona {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String rut;
+    @Column(unique = true)
+    private Integer rut;
+
+    private String serie;
 
     @OneToMany(mappedBy = "persona")
     private List<Ingreso> ingresos;
+
+
+    public Persona(){
+
+    }
+
+    public Persona(Integer rut, String serie){
+        this.rut= rut;
+        this.serie=serie;
+    }
+
+    
 
     public Long getId() {
         return id;
@@ -27,11 +43,11 @@ public class Persona {
         this.id = id;
     }
 
-    public String getRut() {
+    public Integer getRut() {
         return rut;
     }
 
-    public void setRut(String rut) {
+    public void setRut(Integer rut) {
         this.rut = rut;
     }
 
@@ -41,6 +57,14 @@ public class Persona {
 
     public void setIngresos(List<Ingreso> ingresos) {
         this.ingresos = ingresos;
+    }
+
+    public String getSerie() {
+        return serie;
+    }
+
+    public void setSerie(String serie) {
+        this.serie = serie;
     }
 
     
