@@ -16,15 +16,15 @@ public class EstadoService {
         this.estadoRepository = estadoRepository;
     }
 
-    public Estado crearEstado(String nombre) {
+    public Estado crearEstado(Estado estadoRequest) {
 
-        Optional<Estado> estadoExistente = estadoRepository.findByNombre(nombre);
+        Optional<Estado> estadoExistente = estadoRepository.findByNombre(estadoRequest.getNombre());
         if (estadoExistente.isPresent()) {
             throw new IllegalArgumentException("El estado ya existe");
         }
 
         Estado estado = new Estado();
-        estado.setNombre(nombre);
+        estado.setNombre(estadoRequest.getNombre());
         return estadoRepository.save(estado);
     }
 

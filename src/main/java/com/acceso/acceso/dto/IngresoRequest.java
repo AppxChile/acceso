@@ -1,14 +1,14 @@
 package com.acceso.acceso.dto;
 
-import java.time.LocalDateTime;
+import java.util.Set;
 
 public class IngresoRequest {
 
 
     private Integer rut;
-    private LocalDateTime fechaHora;
+ 
     private String serie;
-    private String departamento;
+    private Set<Long> idDepartamentos;
 
     
 
@@ -19,25 +19,20 @@ public class IngresoRequest {
     public void setRut(Integer rut) {
         this.rut = rut;
     }
-    public LocalDateTime getFechaHora() {
-        return fechaHora;
-    }
-    public void setFechaHora(LocalDateTime fechaHora) {
-        this.fechaHora = fechaHora;
-    }
+
     public String getSerie() {
         return serie;
     }
     public void setSerie(String serie) {
         this.serie = serie;
     }
-    public String getDepartamento() {
-        return departamento;
+    public Set<Long> getIdDepartamentos() {
+        return idDepartamentos;
     }
-    public void setDepartamento(String departamento) {
-        this.departamento = departamento;
+    public void setIdDepartamentos(Set<Long> idDepartamentos) {
+        this.idDepartamentos = idDepartamentos;
     }
-
+ 
 
     
 

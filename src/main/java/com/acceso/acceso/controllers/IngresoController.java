@@ -8,8 +8,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.acceso.acceso.dto.IngresoDto;
 import com.acceso.acceso.dto.IngresoRequest;
-import com.acceso.acceso.entities.Ingreso;
 import com.acceso.acceso.services.IngresoService;
 
 @RestController
@@ -26,7 +26,7 @@ public class IngresoController {
     @PostMapping
     public ResponseEntity<Object> crearIngreso(@RequestBody IngresoRequest request) {
         try {
-            Ingreso ingreso = ingresoService.crearIngreso(request);
+            IngresoDto ingreso = ingresoService.crearIngreso(request);
             return ResponseEntity.status(HttpStatus.CREATED).body(ingreso);
 
         } catch (Exception e) {
