@@ -26,6 +26,10 @@ public class Fila {
     @ManyToOne
     private Estado estado;
 
+    private String asignadoA;
+
+    
+
     public Long getId() {
         return id;
     }
@@ -64,6 +68,14 @@ public class Fila {
 
     public void setEstado(Estado estado) {
         this.estado = estado;
+    }
+
+    public String getAsignadoA() {
+        return asignadoA;
+    }
+
+    public void setAsignadoA(String asignadoA) {
+        this.asignadoA = asignadoA;
     }
 
     
