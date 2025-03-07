@@ -16,7 +16,7 @@ public class EstadoService {
         this.estadoRepository = estadoRepository;
     }
 
-    public Estado crearEstado(Estado estadoRequest) {
+    public Estado createEstado(Estado estadoRequest) {
 
         Optional<Estado> estadoExistente = estadoRepository.findByNombre(estadoRequest.getNombre());
         if (estadoExistente.isPresent()) {

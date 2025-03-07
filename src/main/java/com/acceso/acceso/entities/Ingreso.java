@@ -7,6 +7,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
@@ -30,6 +31,20 @@ public class Ingreso {
 
     @OneToOne(mappedBy = "ingreso")
     private Salida salida;
+
+    @ManyToOne
+    @JoinColumn(name = "modulo_id")
+    private Modulo modulo; // Relación con el modulo
+
+    private String asignadoA;
+
+    public Modulo getModulo() {
+        return modulo;
+    }
+
+    public void setModulo(Modulo modulo) {
+        this.modulo = modulo;
+    }
 
     public Long getId() {
         return id;
@@ -79,5 +94,12 @@ public class Ingreso {
         this.salida = salida;
     }
 
-    
+    public String getAsignadoA() {
+        return asignadoA;
+    }
+
+    public void setAsignadoA(String asignadoA) {
+        this.asignadoA = asignadoA;
+    }
+
 }

@@ -14,7 +14,7 @@ public class DepartamentoService {
         this.departamentoRepository = departamentoRepository;
     }
 
-    public Departamento creaDepartamento(Departamento departamento) {
+    public Departamento createDepartamento(Departamento departamento) {
 
         return departamentoRepository.save(departamento);
     }

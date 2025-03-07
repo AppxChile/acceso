@@ -17,8 +17,8 @@ import com.acceso.acceso.dto.FilaResponse;
 import com.acceso.acceso.services.FilaService;
 
 @RestController
-@CrossOrigin(origins = "http://localhost:5173")
-@RequestMapping("/filas")
+@CrossOrigin(origins = "https://dev.appx.cl/")
+@RequestMapping("/api/acceso/filas")
 public class FilaController {
 
     private final FilaService filaService;
@@ -29,18 +29,35 @@ public class FilaController {
 
     @GetMapping("/departamento/{id}")
     public ResponseEntity<List<FilaDto>> obtenerFilasPorDepartamento(@PathVariable Long id) {
-        return ResponseEntity.ok(filaService.obtenerFilasPorDepartamento(id));
+        return ResponseEntity.ok(filaService.getFilasByDepartamento(id));
     }
 
     @PostMapping("/asignar")
-    public ResponseEntity<Object> asignarFila(@RequestParam Long id, @RequestParam String login ){
+    public ResponseEntity<Object> assignFila(@RequestParam Long id, @RequestParam String login,
+            @RequestParam Long moduloId) {
 
         try {
 
-            FilaResponse filaResponse =  filaService.asignarFila(id, login);
+            FilaResponse filaResponse = filaService.assignIngreso(id, login, moduloId);
 
             return ResponseEntity.status(HttpStatus.CREATED).body(filaResponse);
-            
+
+        } catch (Exception e) {
+
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
+
+    }
+
+    @PostMapping("/finalizar")
+    public ResponseEntity<Object> finishFila(@RequestParam Long id) {
+
+        try {
+
+            FilaResponse filaResponse = filaService.finishIngreso(id);
+
+            return ResponseEntity.status(HttpStatus.CREATED).body(filaResponse);
+
         } catch (Exception e) {
 
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());

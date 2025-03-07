@@ -10,8 +10,8 @@ import com.acceso.acceso.entities.Departamento;
 import com.acceso.acceso.services.DepartamentoService;
 
 @RestController
-@CrossOrigin(origins = "http://localhost:5173")
-@RequestMapping("/acceso/departamento")
+@CrossOrigin(origins = "https://dev.appx.cl/")
+@RequestMapping("/api/acceso/departamento")
 public class DepartamentoController {
 
     private final DepartamentoService departamentoService;
@@ -21,8 +21,8 @@ public class DepartamentoController {
     }
 
     @PostMapping
-    public Departamento crearDepartamento(@RequestBody Departamento departamento) {
-        return departamentoService.creaDepartamento(departamento);
+    public Departamento createDepartamento(@RequestBody Departamento departamento) {
+        return departamentoService.createDepartamento(departamento);
     }
 
 }

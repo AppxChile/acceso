@@ -1,4 +1,4 @@
-package com.acceso.acceso.controllers;
+package com.acceso.acceso.dto;
 
 public class UsuarioResponse {
 

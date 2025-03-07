@@ -4,10 +4,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
-import org.springframework.web.reactive.function.client.WebClientResponseException;
 
-import com.acceso.acceso.controllers.UsuarioResponse;
 import com.acceso.acceso.dto.PersonaResponse;
+import com.acceso.acceso.dto.UsuarioResponse;
 
 import reactor.core.publisher.Mono;
 
@@ -24,25 +23,25 @@ public class ApiService {
         this.webClientUsuarios = webClientBuilder.baseUrl(apiUrlUsuario).build();
     }
 
-    public PersonaResponse obtenerDatosPersona(Integer rut) {
+    public PersonaResponse getPersonaInfo(Integer rut) {
         return webClientPersonas.get()
                 .uri("/{rut}", rut)
                 .retrieve()
-                .onStatus(HttpStatusCode::is4xxClientError, _ -> Mono.empty())
+                .onStatus(HttpStatusCode::is4xxClientError, response -> Mono.empty())
                 .bodyToMono(PersonaResponse.class)
-                .onErrorResume(WebClientResponseException.class, _ -> Mono.empty())
-                .block(); // Bloquea hasta recibir la respuesta (sincrónico)
+                .onErrorResume(Exception.class, e -> Mono.empty())
+                .block(); 
     }
 
-    public UsuarioResponse obtenerUsuario(String username) {
+    public UsuarioResponse getUsuario(String username) {
 
         return webClientUsuarios.get()
                 .uri("/buscar/{username}", username)
                 .retrieve()
-                .onStatus(HttpStatusCode::is4xxClientError, _ -> Mono.empty())
+                .onStatus(HttpStatusCode::is4xxClientError, response -> Mono.empty())
                 .bodyToMono(UsuarioResponse.class)
-                .onErrorResume(WebClientResponseException.class, _ -> Mono.empty())
-                .block(); // Bloquea hasta recibir la respuesta (sincrónico)
+                .onErrorResume(Exception.class, e -> Mono.empty())
+                .block(); 
 
     }
 

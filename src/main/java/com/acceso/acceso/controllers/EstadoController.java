@@ -3,13 +3,15 @@ package com.acceso.acceso.controllers;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.acceso.acceso.entities.Estado;
 import com.acceso.acceso.services.EstadoService;
 
 @RestController
-@CrossOrigin(origins = "http://localhost:5173")
+@CrossOrigin(origins = "https://dev.appx.cl/")
+@RequestMapping("/api/acceso/estado")
 public class EstadoController {
 
     private final EstadoService estadoService;
@@ -19,8 +21,8 @@ public class EstadoController {
     }
 
       @PostMapping
-    public Estado crearDepartamento(@RequestBody Estado estado) {
-        return estadoService.crearEstado(estado);
+    public Estado createEstado(@RequestBody Estado estado) {
+        return estadoService.createEstado(estado);
     }
 
 }

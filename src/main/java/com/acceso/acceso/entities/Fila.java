@@ -17,6 +17,8 @@ public class Fila {
 
     private LocalDateTime horaToma;
 
+    private LocalDateTime horaFinalizacion;
+
     @ManyToOne
     private Ingreso ingreso;
 
@@ -25,10 +27,6 @@ public class Fila {
 
     @ManyToOne
     private Estado estado;
-
-    private String asignadoA;
-
-    
 
     public Long getId() {
         return id;
@@ -70,13 +68,12 @@ public class Fila {
         this.estado = estado;
     }
 
-    public String getAsignadoA() {
-        return asignadoA;
+    public LocalDateTime getHoraFinalizacion() {
+        return horaFinalizacion;
     }
 
-    public void setAsignadoA(String asignadoA) {
-        this.asignadoA = asignadoA;
+    public void setHoraFinalizacion(LocalDateTime horaFinalizacion) {
+        this.horaFinalizacion = horaFinalizacion;
     }
 
-    
 }
