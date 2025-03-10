@@ -1,5 +1,7 @@
 package com.acceso.acceso.services;
 
+import java.util.List;
+
 import org.springframework.stereotype.Service;
 
 import com.acceso.acceso.entities.Departamento;
@@ -17,6 +19,10 @@ public class DepartamentoService {
     public Departamento createDepartamento(Departamento departamento) {
 
         return departamentoRepository.save(departamento);
+    }
+
+    public List<Departamento> findal(){
+        return departamentoRepository.findAll();
     }
 
 }
