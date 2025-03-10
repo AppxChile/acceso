@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.acceso.acceso.dto.ListDepartamentosDto;
 import com.acceso.acceso.entities.Departamento;
 import com.acceso.acceso.services.DepartamentoService;
 
@@ -29,8 +30,8 @@ public class DepartamentoController {
     }
 
     @GetMapping("/list")
-    public List<Departamento> getDepartamentos(){
-        return departamentoService.findal();
+    public List<ListDepartamentosDto> getDepartamentos(){
+        return departamentoService.findAll();
     }
 
 }

@@ -10,7 +10,9 @@ import org.springframework.stereotype.Service;
 
 import com.acceso.acceso.dto.IngresoDto;
 import com.acceso.acceso.dto.IngresoRequest;
+import com.acceso.acceso.dto.IngresosByFechasDto;
 import com.acceso.acceso.dto.PersonaDto;
+import com.acceso.acceso.dto.PersonaResponse;
 import com.acceso.acceso.entities.Departamento;
 import com.acceso.acceso.entities.Estado;
 import com.acceso.acceso.entities.Fila;
@@ -44,10 +46,13 @@ public class IngresoService {
 
     private final SalidaRepository salidaRepository;
 
+    private final ApiService apiService;
+
     public IngresoService(IngresoRepository ingresoRepository, PersonaRepository personaRepository,
             DepartamentoRepository departamentoRepository, IngresoDepartamentoRepository ingresoDepartamentoRepository,
             FilaRepository filaRepository, EstadoRepository estadoRepository,
-            SalidaRepository salidaRepository) {
+            SalidaRepository salidaRepository,
+            ApiService apiService) {
         this.ingresoRepository = ingresoRepository;
         this.personaRepository = personaRepository;
         this.departamentoRepository = departamentoRepository;
@@ -55,6 +60,7 @@ public class IngresoService {
         this.filaRepository = filaRepository;
         this.estadoRepository = estadoRepository;
         this.salidaRepository = salidaRepository;
+        this.apiService = apiService;
     }
 
     public IngresoDto createIngreso(IngresoRequest request) {
@@ -142,6 +148,29 @@ public class IngresoService {
         return optSalida.isEmpty();
     }
 
+    public List<IngresosByFechasDto> getIngresosBetweenDates(LocalDateTime fechaInicio, LocalDateTime fechaFin) {
+        List<Ingreso> ingresos = ingresoRepository.findByhoraIngresoBetween(fechaInicio, fechaFin);
 
-   
+        return ingresos.stream().map(ingr -> {
+            IngresosByFechasDto dto = new IngresosByFechasDto();
+            dto.setFechaIngreso(ingr.getHoraIngreso());
+
+            if (ingr.getPersona() != null) {
+                PersonaResponse personaResponse = apiService.getPersonaInfo(ingr.getPersona().getRut());
+                dto.setNombre(personaResponse != null ? personaResponse.getNombres().concat(" ")
+                        .concat(personaResponse.getPaterno().concat(" ").concat(personaResponse.getMaterno())) : "Desconocido");
+            } else {
+                dto.setNombre("Desconocido");
+            }
+
+            if (ingr.getSalida() != null) {
+                dto.setFechaSalida(ingr.getSalida().getHoraSalida());
+            } else {
+                dto.setFechaSalida(null);
+            }
+
+            return dto;
+        }).toList();
+    }
+
 }
