@@ -15,4 +15,5 @@ public interface SalidaRepository extends JpaRepository<Salida,Long> {
 
     Optional<Salida> findByIngresoId(Long id);
 
+
 }

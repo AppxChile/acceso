@@ -25,13 +25,13 @@ public class SalidaController {
         this.salidaService = salidaService;
     }
 
-    @PostMapping("{id}")
-    public ResponseEntity<Object> createSalida(@PathVariable Long id){
+    @PostMapping("{rut}")
+    public ResponseEntity<Object> createSalida(@PathVariable Integer rut){
         try {
-            Salida salida = salidaService.createSalida(id);
+            Salida salida = salidaService.createSalida(rut);
             return ResponseEntity.ok(salida);
         }catch(MyExceptions e){
-            return ResponseEntity.status(HttpStatus.CONFLICT).body(new ErrorResponse("CONFLIC","Id ya tiene una salida"));
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(new ErrorResponse("CONFLICT",e.getMessage()));
         
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
