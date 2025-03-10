@@ -2,14 +2,12 @@ package com.acceso.acceso.dto;
 
 import java.time.LocalDateTime;
 
-public class IngresosByFechasDto {
+public class SalidasByFechasDto {
 
     private LocalDateTime fechaIngreso;
     private String nombre;
     private String rut;
     private LocalDateTime fechaSalida;
-
-    
     public LocalDateTime getFechaIngreso() {
         return fechaIngreso;
     }
@@ -19,14 +17,8 @@ public class IngresosByFechasDto {
     public String getNombre() {
         return nombre;
     }
-    public void setNombre(String nombbre) {
-        this.nombre = nombbre;
-    }
-    public LocalDateTime getFechaSalida() {
-        return fechaSalida;
-    }
-    public void setFechaSalida(LocalDateTime fechaSalida) {
-        this.fechaSalida = fechaSalida;
+    public void setNombre(String nombre) {
+        this.nombre = nombre;
     }
     public String getRut() {
         return rut;
@@ -34,9 +26,13 @@ public class IngresosByFechasDto {
     public void setRut(String rut) {
         this.rut = rut;
     }
+    public LocalDateTime getFechaSalida() {
+        return fechaSalida;
+    }
+    public void setFechaSalida(LocalDateTime fechaSalida) {
+        this.fechaSalida = fechaSalida;
+    }
 
     
-
-
 
 }

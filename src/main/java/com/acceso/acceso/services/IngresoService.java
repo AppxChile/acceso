@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import com.acceso.acceso.dto.IngresoDto;
 import com.acceso.acceso.dto.IngresoRequest;
+import com.acceso.acceso.dto.IngresoWithouSalidaDto;
 import com.acceso.acceso.dto.IngresosByFechasDto;
 import com.acceso.acceso.dto.PersonaDto;
 import com.acceso.acceso.dto.PersonaResponse;
@@ -159,6 +160,7 @@ public class IngresoService {
                 PersonaResponse personaResponse = apiService.getPersonaInfo(ingr.getPersona().getRut());
                 dto.setNombre(personaResponse != null ? personaResponse.getNombres().concat(" ")
                         .concat(personaResponse.getPaterno().concat(" ").concat(personaResponse.getMaterno())) : "Desconocido");
+               dto.setRut(personaResponse.getRut().toString().concat("-").concat(personaResponse.getVrut()));
             } else {
                 dto.setNombre("Desconocido");
             }
@@ -172,5 +174,28 @@ public class IngresoService {
             return dto;
         }).toList();
     }
+
+    
+    public List<IngresoWithouSalidaDto> getIngresoSalidaNull(){
+
+        List<Ingreso> ingresos = ingresoRepository.findBySalidaIsNull();
+
+        return ingresos.stream().map(ing ->{
+
+             IngresoWithouSalidaDto dto  = new IngresoWithouSalidaDto();
+
+             PersonaResponse personaResponse= apiService.getPersonaInfo(ing.getPersona().getRut());
+
+
+             dto.setRut(personaResponse.getRut().toString().concat("-").concat(personaResponse.getVrut()));
+             dto.setNombre(personaResponse.getNombres().concat(" ").concat(personaResponse.getPaterno().concat(" ").concat(personaResponse.getMaterno())));
+             dto.setHoraIngreso(ing.getHoraIngreso());
+
+             return dto;
+
+        }).toList();
+        
+    }
+
 
 }

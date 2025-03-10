@@ -18,4 +18,6 @@ public interface IngresoRepository extends JpaRepository<Ingreso,Long> {
 
     List<Ingreso> findByhoraIngresoBetween(LocalDateTime fechaInicio, LocalDateTime fechaFin );
 
+    List<Ingreso> findBySalidaIsNull();
+
 }

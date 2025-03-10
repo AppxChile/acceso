@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.acceso.acceso.dto.ErrorResponse;
 import com.acceso.acceso.dto.IngresoDto;
 import com.acceso.acceso.dto.IngresoRequest;
+import com.acceso.acceso.dto.IngresoWithouSalidaDto;
 import com.acceso.acceso.dto.IngresosByFechasDto;
 import com.acceso.acceso.exceptions.MyExceptions;
 import com.acceso.acceso.services.IngresoService;
@@ -72,6 +73,16 @@ public class IngresoController {
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(new ErrorResponse("INTERNAL_SERVER_ERROR", e.getMessage()));
+        }
+    }
+
+    @GetMapping("ingresos-sin-salida")
+    public ResponseEntity<List<IngresoWithouSalidaDto>> getIngresosSalidaNull() {
+        try {
+            List<IngresoWithouSalidaDto> ingresos = ingresoService.getIngresoSalidaNull();
+            return ResponseEntity.ok(ingresos);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
 }
