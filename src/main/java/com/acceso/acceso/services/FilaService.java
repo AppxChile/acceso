@@ -2,6 +2,7 @@ package com.acceso.acceso.services;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 
@@ -51,6 +52,10 @@ public class FilaService {
         dto.setHoraToma(fila.getHoraToma());
         dto.setEstado(fila.getEstado().getNombre());
         dto.setIngresoId(fila.getIngreso().getId());
+        dto.setModulo(Optional.ofNullable(fila.getModulo())
+                      .map(Modulo::getNombre)
+                      .orElse(null));
+        dto.setHoraIngreso(fila.getIngreso().getHoraIngreso());
 
         PersonaResponse persona = apiService.getPersonaInfo(fila.getIngreso().getPersona().getRut());
 

@@ -9,8 +9,28 @@ public class FilaDto {
     private String estado;
     private Long ingresoId;
     private String nombre;
+    private String modulo;
+    private LocalDateTime horaIngreso;
 
     
+
+    
+
+    public String getModulo() {
+        return modulo;
+    }
+
+    public void setModulo(String modulo) {
+        this.modulo = modulo;
+    }
+
+    public LocalDateTime getHoraIngreso() {
+        return horaIngreso;
+    }
+
+    public void setHoraIngreso(LocalDateTime horaIngreso) {
+        this.horaIngreso = horaIngreso;
+    }
 
     // Getters y Setters
     public Long getId() {
