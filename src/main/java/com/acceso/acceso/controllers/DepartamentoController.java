@@ -30,7 +30,7 @@ public class DepartamentoController {
     }
 
     @GetMapping("/list")
-    public List<ListDepartamentosDto> getDepartamentos(){
+    public List<ListDepartamentosDto> getDepartamentos() {
         return departamentoService.findAll();
     }
 

@@ -159,8 +159,9 @@ public class IngresoService {
             if (ingr.getPersona() != null) {
                 PersonaResponse personaResponse = apiService.getPersonaInfo(ingr.getPersona().getRut());
                 dto.setNombre(personaResponse != null ? personaResponse.getNombres().concat(" ")
-                        .concat(personaResponse.getPaterno().concat(" ").concat(personaResponse.getMaterno())) : "Desconocido");
-               dto.setRut(personaResponse.getRut().toString().concat("-").concat(personaResponse.getVrut()));
+                        .concat(personaResponse.getPaterno().concat(" ").concat(personaResponse.getMaterno()))
+                        : "Desconocido");
+                dto.setRut(personaResponse.getRut().toString().concat("-").concat(personaResponse.getVrut()));
             } else {
                 dto.setNombre("Desconocido");
             }
@@ -175,27 +176,25 @@ public class IngresoService {
         }).toList();
     }
 
-    
-    public List<IngresoWithouSalidaDto> getIngresoSalidaNull(){
+    public List<IngresoWithouSalidaDto> getIngresoSalidaNull() {
 
         List<Ingreso> ingresos = ingresoRepository.findBySalidaIsNull();
 
-        return ingresos.stream().map(ing ->{
+        return ingresos.stream().map(ing -> {
 
-             IngresoWithouSalidaDto dto  = new IngresoWithouSalidaDto();
+            IngresoWithouSalidaDto dto = new IngresoWithouSalidaDto();
 
-             PersonaResponse personaResponse= apiService.getPersonaInfo(ing.getPersona().getRut());
+            PersonaResponse personaResponse = apiService.getPersonaInfo(ing.getPersona().getRut());
 
+            dto.setRut(personaResponse.getRut().toString().concat("-").concat(personaResponse.getVrut()));
+            dto.setNombre(personaResponse.getNombres().concat(" ")
+                    .concat(personaResponse.getPaterno().concat(" ").concat(personaResponse.getMaterno())));
+            dto.setHoraIngreso(ing.getHoraIngreso());
 
-             dto.setRut(personaResponse.getRut().toString().concat("-").concat(personaResponse.getVrut()));
-             dto.setNombre(personaResponse.getNombres().concat(" ").concat(personaResponse.getPaterno().concat(" ").concat(personaResponse.getMaterno())));
-             dto.setHoraIngreso(ing.getHoraIngreso());
-
-             return dto;
+            return dto;
 
         }).toList();
-        
-    }
 
+    }
 
 }

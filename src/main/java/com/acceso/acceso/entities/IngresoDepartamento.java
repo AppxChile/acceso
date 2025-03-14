@@ -45,5 +45,4 @@ public class IngresoDepartamento {
         this.departamento = departamento;
     }
 
-    
 }

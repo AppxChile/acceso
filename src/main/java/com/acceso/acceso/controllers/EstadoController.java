@@ -20,7 +20,7 @@ public class EstadoController {
         this.estadoService = estadoService;
     }
 
-      @PostMapping
+    @PostMapping
     public Estado createEstado(@RequestBody Estado estado) {
         return estadoService.createEstado(estado);
     }

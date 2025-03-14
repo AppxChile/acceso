@@ -30,18 +30,18 @@ public class SalidaController {
 
     private final SalidaService salidaService;
 
-    public SalidaController(SalidaService salidaService){
+    public SalidaController(SalidaService salidaService) {
         this.salidaService = salidaService;
     }
 
     @PostMapping("{rut}")
-    public ResponseEntity<Object> createSalida(@PathVariable Integer rut){
+    public ResponseEntity<Object> createSalida(@PathVariable Integer rut) {
         try {
             Salida salida = salidaService.createSalida(rut);
             return ResponseEntity.ok(salida);
-        }catch(MyExceptions e){
-            return ResponseEntity.status(HttpStatus.CONFLICT).body(new ErrorResponse("CONFLICT",e.getMessage()));
-        
+        } catch (MyExceptions e) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(new ErrorResponse("CONFLICT", e.getMessage()));
+
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
         }
@@ -52,7 +52,7 @@ public class SalidaController {
             @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate fechaInicio,
             @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate fechaFin) {
 
-        LocalDateTime inicioDelDia = fechaInicio.atStartOfDay(); 
+        LocalDateTime inicioDelDia = fechaInicio.atStartOfDay();
         LocalDateTime finDelDia = fechaFin.atTime(LocalTime.MAX);
         try {
             List<SalidasByFechasDto> ingresoList = salidaService.getSalidasBetweenDates(inicioDelDia, finDelDia);

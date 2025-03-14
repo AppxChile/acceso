@@ -22,13 +22,11 @@ public class DepartamentoService {
         return departamentoRepository.save(departamento);
     }
 
-    public List<ListDepartamentosDto> findAll(){
-
+    public List<ListDepartamentosDto> findAll() {
 
         List<Departamento> deptos = departamentoRepository.findAll();
 
-
-       return deptos.stream().map(depto->{
+        return deptos.stream().map(depto -> {
 
             ListDepartamentosDto dto = new ListDepartamentosDto();
 

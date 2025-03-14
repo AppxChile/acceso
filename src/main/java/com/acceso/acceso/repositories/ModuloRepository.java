@@ -4,6 +4,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import com.acceso.acceso.entities.Modulo;
 
-public interface ModuloRepository extends JpaRepository<Modulo,Long> {
+public interface ModuloRepository extends JpaRepository<Modulo, Long> {
 
 }

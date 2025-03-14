@@ -46,7 +46,4 @@ public class Salida {
         this.ingreso = ingreso;
     }
 
-
-
-    
 }

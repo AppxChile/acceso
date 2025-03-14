@@ -12,10 +12,6 @@ public class FilaDto {
     private String modulo;
     private LocalDateTime horaIngreso;
 
-    
-
-    
-
     public String getModulo() {
         return modulo;
     }

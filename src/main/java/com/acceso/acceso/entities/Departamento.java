@@ -43,5 +43,4 @@ public class Departamento {
         this.ingresoDepartamentos = ingresoDepartamentos;
     }
 
-    
 }

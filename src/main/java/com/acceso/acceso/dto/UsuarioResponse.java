@@ -12,6 +12,4 @@ public class UsuarioResponse {
         this.username = username;
     }
 
-    
-
 }

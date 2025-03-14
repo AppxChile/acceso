@@ -12,12 +12,11 @@ public class ModuloService {
 
     private final ModuloRepository moduloRepository;
 
-    public ModuloService(ModuloRepository moduloRepository){
-        this.moduloRepository= moduloRepository;
+    public ModuloService(ModuloRepository moduloRepository) {
+        this.moduloRepository = moduloRepository;
     }
 
-
-    public List<Modulo> getAll(){
+    public List<Modulo> getAll() {
 
         return moduloRepository.findAll();
 
