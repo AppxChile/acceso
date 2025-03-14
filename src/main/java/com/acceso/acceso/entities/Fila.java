@@ -7,7 +7,6 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToOne;
 
 @Entity
 public class Fila {
@@ -22,8 +21,6 @@ public class Fila {
     @ManyToOne
     private Ingreso ingreso;
 
-    @OneToOne
-    private Modulo modulo;
 
     @ManyToOne
     private Estado estado;
@@ -52,14 +49,7 @@ public class Fila {
         this.ingreso = ingreso;
     }
 
-    public Modulo getModulo() {
-        return modulo;
-    }
-
-    public void setModulo(Modulo modulo) {
-        this.modulo = modulo;
-    }
-
+   
     public Estado getEstado() {
         return estado;
     }

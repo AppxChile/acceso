@@ -22,92 +22,99 @@ import com.acceso.acceso.repositories.ModuloRepository;
 @Service
 public class FilaService {
 
-    private final FilaRepository filaRepository;
+        private final FilaRepository filaRepository;
 
-    private final ApiService apiService;
+        private final ApiService apiService;
 
-    private final EstadoRepository estadoRepository;
+        private final EstadoRepository estadoRepository;
 
-    private final IngresoRepository ingresoRepository;
+        private final IngresoRepository ingresoRepository;
 
-    private final ModuloRepository moduloRepository;
+        private final ModuloRepository moduloRepository;
 
-    public FilaService(FilaRepository filaRepository, ApiService apiService, EstadoRepository estadoRepository,
-            IngresoRepository ingresoRepository, ModuloRepository moduloRepository) {
-        this.filaRepository = filaRepository;
-        this.apiService = apiService;
-        this.estadoRepository = estadoRepository;
-        this.ingresoRepository = ingresoRepository;
-        this.moduloRepository = moduloRepository;
-    }
-
-    public List<FilaDto> getFilasByDepartamento(Long departamentoId) {
-        List<Fila> filas = filaRepository.findFilasByDepartamento(departamentoId);
-        return filas.stream().map(this::convertFilaDto).toList();
-    }
-
-    private FilaDto convertFilaDto(Fila fila) {
-        FilaDto dto = new FilaDto();
-        dto.setId(fila.getId());
-        dto.setHoraToma(fila.getHoraToma());
-        dto.setEstado(fila.getEstado().getNombre());
-        dto.setIngresoId(fila.getIngreso().getId());
-        dto.setModulo(Optional.ofNullable(fila.getModulo())
-                .map(Modulo::getNombre)
-                .orElse(null));
-        dto.setHoraIngreso(fila.getIngreso().getHoraIngreso());
-
-        PersonaResponse persona = apiService.getPersonaInfo(fila.getIngreso().getPersona().getRut());
-
-        dto.setNombre(
-                persona.getNombres().concat(" ").concat(persona.getPaterno().concat(" ").concat(persona.getMaterno())));
-        return dto;
-    }
-
-    public FilaResponse assignIngreso(Long id, String login, Long moduloId) {
-
-        Fila fila = filaRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Fila con ID " + id + " no encontrada"));
-
-        Ingreso ingreso = fila.getIngreso();
-
-        Estado estado = estadoRepository.findByNombre("EN ATENCION")
-                .orElseThrow(() -> new IllegalArgumentException("Estado 'EN ATENCION' no existe"));
-
-        UsuarioResponse usuarioResponse = apiService.getUsuario(login);
-        if (usuarioResponse == null) {
-            throw new IllegalArgumentException("Usuario con login " + login + " no existe");
+        public FilaService(FilaRepository filaRepository, ApiService apiService, EstadoRepository estadoRepository,
+                        IngresoRepository ingresoRepository, ModuloRepository moduloRepository) {
+                this.filaRepository = filaRepository;
+                this.apiService = apiService;
+                this.estadoRepository = estadoRepository;
+                this.ingresoRepository = ingresoRepository;
+                this.moduloRepository = moduloRepository;
         }
 
-        Modulo modulo = moduloRepository.findById(moduloId)
-                .orElseThrow(() -> new IllegalArgumentException("Módulo con ID " + moduloId + " no encontrado"));
+        public List<FilaDto> getFilasByDepartamento(Long departamentoId) {
+                List<Fila> filas = filaRepository.findFilasByDepartamento(departamentoId);
+                return filas.stream().map(this::convertFilaDto).toList();
+        }
 
-        ingreso.setAsignadoA(login);
-        ingreso.setModulo(modulo);
-        ingresoRepository.save(ingreso);
+        private FilaDto convertFilaDto(Fila fila) {
+                FilaDto dto = new FilaDto();
+                dto.setId(fila.getId());
+                dto.setHoraToma(fila.getHoraToma());
+                dto.setEstado(fila.getEstado().getNombre());
+                dto.setIngresoId(fila.getIngreso().getId());
+                dto.setModulo(Optional.ofNullable(fila.getIngreso().getModulo())
+                                .map(Modulo::getNombre)
+                                .orElse(null));
+                dto.setHoraIngreso(fila.getIngreso().getHoraIngreso());
+                dto.setIdMoudlo(Optional.ofNullable(fila.getIngreso().getModulo())
+                                .map(Modulo::getId)
+                                .orElse(null));
 
-        fila.setEstado(estado);
-        fila.setHoraToma(LocalDateTime.now());
-        filaRepository.save(fila);
+                PersonaResponse persona = apiService.getPersonaInfo(fila.getIngreso().getPersona().getRut());
 
-        return new FilaResponse(fila.getId(), ingreso.getAsignadoA(), fila.getEstado().getNombre());
-    }
+                dto.setNombre(
+                                persona.getNombres().concat(" ")
+                                                .concat(persona.getPaterno().concat(" ").concat(persona.getMaterno())));
+                return dto;
+        }
 
-    public FilaResponse finishIngreso(Long id) {
+        public FilaResponse assignIngreso(Long id, String login, Long moduloId) {
 
-        Fila fila = filaRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Fila con ID " + id + " no encontrada"));
+                Fila fila = filaRepository.findById(id)
+                                .orElseThrow(() -> new IllegalArgumentException(
+                                                "Fila con ID " + id + " no encontrada"));
 
-        Ingreso ingreso = fila.getIngreso();
+                Ingreso ingreso = fila.getIngreso();
 
-        Estado estado = estadoRepository.findByNombre("FINALIZADO")
-                .orElseThrow(() -> new IllegalArgumentException("Estado 'FINALIZADO' no existe"));
+                Estado estado = estadoRepository.findByNombre("EN ATENCION")
+                                .orElseThrow(() -> new IllegalArgumentException("Estado 'EN ATENCION' no existe"));
 
-        fila.setEstado(estado);
-        fila.setHoraFinalizacion(LocalDateTime.now());
-        filaRepository.save(fila);
+                UsuarioResponse usuarioResponse = apiService.getUsuario(login);
+                if (usuarioResponse == null) {
+                        throw new IllegalArgumentException("Usuario con login " + login + " no existe");
+                }
 
-        return new FilaResponse(fila.getId(), ingreso.getAsignadoA(), fila.getEstado().getNombre());
-    }
+                Modulo modulo = moduloRepository.findById(moduloId)
+                                .orElseThrow(() -> new IllegalArgumentException(
+                                                "Módulo con ID " + moduloId + " no encontrado"));
+
+                ingreso.setAsignadoA(login);
+                ingreso.setModulo(modulo);
+                ingresoRepository.save(ingreso);
+
+                fila.setEstado(estado);
+                fila.setHoraToma(LocalDateTime.now());
+                filaRepository.save(fila);
+
+                return new FilaResponse(fila.getId(), ingreso.getAsignadoA(), fila.getEstado().getNombre());
+        }
+
+        public FilaResponse finishIngreso(Long id) {
+
+                Fila fila = filaRepository.findById(id)
+                                .orElseThrow(() -> new IllegalArgumentException(
+                                                "Fila con ID " + id + " no encontrada"));
+
+                Ingreso ingreso = fila.getIngreso();
+
+                Estado estado = estadoRepository.findByNombre("FINALIZADO")
+                                .orElseThrow(() -> new IllegalArgumentException("Estado 'FINALIZADO' no existe"));
+
+                fila.setEstado(estado);
+                fila.setHoraFinalizacion(LocalDateTime.now());
+                filaRepository.save(fila);
+
+                return new FilaResponse(fila.getId(), ingreso.getAsignadoA(), fila.getEstado().getNombre());
+        }
 
 }

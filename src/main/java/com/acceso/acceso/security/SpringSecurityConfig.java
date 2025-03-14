@@ -55,6 +55,7 @@ public class SpringSecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource())) // Usa el bean de CORS
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(authz -> authz
+                .requestMatchers("/api/acceso/filas/departamento/**").permitAll()
                 .requestMatchers("/**").hasRole("FUNC")
                         .anyRequest().authenticated())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
