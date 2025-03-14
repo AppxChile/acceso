@@ -1,6 +1,7 @@
 package com.acceso.acceso.services;
 
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -79,7 +80,8 @@ public class IngresoService {
                 .collect(Collectors.toSet());
 
         Ingreso ingreso = new Ingreso();
-        ingreso.setHoraIngreso(LocalDateTime.now());
+
+        ingreso.setHoraIngreso(fechaHoraIngreso());
         ingreso.setPersona(persona);
 
         ingreso = ingresoRepository.save(ingreso);
@@ -101,6 +103,12 @@ public class IngresoService {
         filaRepository.save(fila);
 
         return convertDTO(ingreso, estadoInicial);
+    }
+
+    private LocalDateTime fechaHoraIngreso() {
+        ZoneId zonaChile = ZoneId.of("America/Santiago");
+        return LocalDateTime.now(zonaChile);
+
     }
 
     private IngresoDto convertDTO(Ingreso ingreso, Estado estado) {
