@@ -27,4 +27,12 @@ public interface IngresoRepository extends JpaRepository<Ingreso, Long> {
             "GROUP BY d.nombre")
     List<Object[]> findTotalIngresosByDepartamentoBetweenDates(LocalDateTime fechaInicio, LocalDateTime fechaFin);
 
+    @Query(value = "SELECT HOUR(hora_ingreso) AS hora, " +
+            "COUNT(*) AS total, " +
+            "DATE_FORMAT(hora_ingreso, '%Y-%m-%d') AS fecha " +
+            "FROM ingreso " +
+            "WHERE DATE(hora_ingreso) = CURRENT_DATE() " +
+            "GROUP BY HOUR(hora_ingreso), DATE_FORMAT(hora_ingreso, '%Y-%m-%d')", nativeQuery = true)
+    List<Object[]> findIngresosByHour();
+
 }

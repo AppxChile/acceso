@@ -14,6 +14,7 @@ import com.acceso.acceso.dto.IngresoDto;
 import com.acceso.acceso.dto.IngresoRequest;
 import com.acceso.acceso.dto.IngresoWithouSalidaDto;
 import com.acceso.acceso.dto.IngresosByFechasDto;
+import com.acceso.acceso.dto.IngresosByHorasDto;
 import com.acceso.acceso.dto.PersonaDto;
 import com.acceso.acceso.dto.PersonaResponse;
 import com.acceso.acceso.entities.Departamento;
@@ -82,7 +83,6 @@ public class IngresoService {
 
         Ingreso ingreso = new Ingreso();
 
-        System.out.println(fechaHoraIngreso());
 
         ingreso.setHoraIngreso(fechaHoraIngreso());
         ingreso.setPersona(persona);
@@ -209,17 +209,35 @@ public class IngresoService {
     }
 
     public List<IngresoByDeptosDates> getIngresosByDeptoBetweenDate(LocalDateTime fechaInicio, LocalDateTime fechaFin) {
-        List<Object[]> resultados = ingresoRepository.findTotalIngresosByDepartamentoBetweenDates(fechaInicio, fechaFin);
+        List<Object[]> resultados = ingresoRepository.findTotalIngresosByDepartamentoBetweenDates(fechaInicio,
+                fechaFin);
 
         return resultados.stream()
                 .map(obj -> {
                     IngresoByDeptosDates dto = new IngresoByDeptosDates();
-                    dto.setNombreDepto((String) obj[0]);  
-                    dto.setTotalIngresos(((Number) obj[1]).intValue());  
+                    dto.setNombreDepto((String) obj[0]);
+                    dto.setTotalIngresos(((Number) obj[1]).intValue());
                     return dto;
                 })
                 .toList();
     }
 
-    
+    public List<IngresosByHorasDto> getIngresosDayByHour() {
+
+        List<Object[]> response = ingresoRepository.findIngresosByHour();
+
+        return response.stream().map(res -> {
+
+            IngresosByHorasDto dto = new IngresosByHorasDto();
+
+            dto.setHora(((Number) res[0]).intValue());
+            dto.setTotal(((Number) res[1]).intValue());
+            dto.setFecha((String) res[2]);
+
+            return dto;
+
+        }).toList();
+
+    }
+
 }

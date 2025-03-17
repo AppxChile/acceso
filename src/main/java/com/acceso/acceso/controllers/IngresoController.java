@@ -22,6 +22,7 @@ import com.acceso.acceso.dto.IngresoDto;
 import com.acceso.acceso.dto.IngresoRequest;
 import com.acceso.acceso.dto.IngresoWithouSalidaDto;
 import com.acceso.acceso.dto.IngresosByFechasDto;
+import com.acceso.acceso.dto.IngresosByHorasDto;
 import com.acceso.acceso.exceptions.MyExceptions;
 import com.acceso.acceso.services.IngresoService;
 
@@ -93,13 +94,25 @@ public class IngresoController {
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaFin) {
         try {
             List<IngresoByDeptosDates> ingresos = ingresoService.getIngresosByDeptoBetweenDate(
-                fechaInicio.atStartOfDay(), fechaFin.atTime(23, 59, 59)
-            );
+                    fechaInicio.atStartOfDay(), fechaFin.atTime(23, 59, 59));
             return ResponseEntity.ok(ingresos);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         }
+
     }
 
-    
+
+    @GetMapping("/por-dia")
+    public ResponseEntity<Object> getIngresosByHourDay( ) {
+        try {
+            List<IngresosByHorasDto> ingresos = ingresoService.getIngresosDayByHour();
+            return ResponseEntity.ok(ingresos);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+        }
+
+    }
+
+
 }
