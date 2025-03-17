@@ -11,7 +11,7 @@ public class FilaDto {
     private String nombre;
     private String modulo;
     private LocalDateTime horaIngreso;
-    private Long idMoudlo;
+    private Long idModulo;
 
     
     public String getModulo() {
@@ -71,11 +71,11 @@ public class FilaDto {
         this.nombre = nombre;
     }
 
-    public Long getIdMoudlo() {
-        return idMoudlo;
+    public Long getIdModulo() {
+        return idModulo;
     }
 
-    public void setIdMoudlo(Long idMoudlo) {
-        this.idMoudlo = idMoudlo;
+    public void setIdModulo(Long idMoudlo) {
+        this.idModulo = idMoudlo;
     }
 }

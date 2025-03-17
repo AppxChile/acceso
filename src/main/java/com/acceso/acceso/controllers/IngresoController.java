@@ -97,22 +97,20 @@ public class IngresoController {
                     fechaInicio.atStartOfDay(), fechaFin.atTime(23, 59, 59));
             return ResponseEntity.ok(ingresos);
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
 
     }
 
-
     @GetMapping("/por-dia")
-    public ResponseEntity<Object> getIngresosByHourDay( ) {
+    public ResponseEntity<List<IngresosByHorasDto>> getIngresosByHourDay() {
         try {
             List<IngresosByHorasDto> ingresos = ingresoService.getIngresosDayByHour();
             return ResponseEntity.ok(ingresos);
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
 
     }
-
 
 }

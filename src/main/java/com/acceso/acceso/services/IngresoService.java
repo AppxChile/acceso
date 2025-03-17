@@ -217,6 +217,7 @@ public class IngresoService {
                     IngresoByDeptosDates dto = new IngresoByDeptosDates();
                     dto.setNombreDepto((String) obj[0]);
                     dto.setTotalIngresos(((Number) obj[1]).intValue());
+                    dto.setFechaIngreso((String) obj[2]);
                     return dto;
                 })
                 .toList();

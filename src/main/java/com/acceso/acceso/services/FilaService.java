@@ -56,7 +56,7 @@ public class FilaService {
                                 .map(Modulo::getNombre)
                                 .orElse(null));
                 dto.setHoraIngreso(fila.getIngreso().getHoraIngreso());
-                dto.setIdMoudlo(Optional.ofNullable(fila.getIngreso().getModulo())
+                dto.setIdModulo(Optional.ofNullable(fila.getIngreso().getModulo())
                                 .map(Modulo::getId)
                                 .orElse(null));
 

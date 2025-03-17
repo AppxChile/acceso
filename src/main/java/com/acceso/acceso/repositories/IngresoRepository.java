@@ -20,11 +20,12 @@ public interface IngresoRepository extends JpaRepository<Ingreso, Long> {
 
     List<Ingreso> findBySalidaIsNull();
 
-    @Query("SELECT d.nombre, COUNT(i) FROM IngresoDepartamento id " +
+    @Query("SELECT d.nombre, COUNT(i), DATE_FORMAT(i.horaIngreso, '%Y-%m-%d') FROM IngresoDepartamento id " +
+    
             "JOIN id.departamento d " +
             "JOIN id.ingreso i " +
             "WHERE i.horaIngreso BETWEEN :fechaInicio AND :fechaFin " +
-            "GROUP BY d.nombre")
+            "GROUP BY d.nombre, DATE_FORMAT(i.horaIngreso, '%Y-%m-%d')")
     List<Object[]> findTotalIngresosByDepartamentoBetweenDates(LocalDateTime fechaInicio, LocalDateTime fechaFin);
 
     @Query(value = "SELECT HOUR(hora_ingreso) AS hora, " +
