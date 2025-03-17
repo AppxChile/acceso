@@ -1,6 +1,7 @@
 package com.acceso.acceso.repositories;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 
 import com.acceso.acceso.entities.Ingreso;
 import com.acceso.acceso.entities.Persona;
@@ -18,5 +19,12 @@ public interface IngresoRepository extends JpaRepository<Ingreso, Long> {
     List<Ingreso> findByhoraIngresoBetween(LocalDateTime fechaInicio, LocalDateTime fechaFin);
 
     List<Ingreso> findBySalidaIsNull();
+
+    @Query("SELECT d.nombre, COUNT(i) FROM IngresoDepartamento id " +
+            "JOIN id.departamento d " +
+            "JOIN id.ingreso i " +
+            "WHERE i.horaIngreso BETWEEN :fechaInicio AND :fechaFin " +
+            "GROUP BY d.nombre")
+    List<Object[]> findTotalIngresosByDepartamentoBetweenDates(LocalDateTime fechaInicio, LocalDateTime fechaFin);
 
 }

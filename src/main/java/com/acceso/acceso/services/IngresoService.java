@@ -9,6 +9,7 @@ import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
+import com.acceso.acceso.dto.IngresoByDeptosDates;
 import com.acceso.acceso.dto.IngresoDto;
 import com.acceso.acceso.dto.IngresoRequest;
 import com.acceso.acceso.dto.IngresoWithouSalidaDto;
@@ -80,6 +81,8 @@ public class IngresoService {
                 .collect(Collectors.toSet());
 
         Ingreso ingreso = new Ingreso();
+
+        System.out.println(fechaHoraIngreso());
 
         ingreso.setHoraIngreso(fechaHoraIngreso());
         ingreso.setPersona(persona);
@@ -205,4 +208,18 @@ public class IngresoService {
 
     }
 
+    public List<IngresoByDeptosDates> getIngresosByDeptoBetweenDate(LocalDateTime fechaInicio, LocalDateTime fechaFin) {
+        List<Object[]> resultados = ingresoRepository.findTotalIngresosByDepartamentoBetweenDates(fechaInicio, fechaFin);
+
+        return resultados.stream()
+                .map(obj -> {
+                    IngresoByDeptosDates dto = new IngresoByDeptosDates();
+                    dto.setNombreDepto((String) obj[0]);  
+                    dto.setTotalIngresos(((Number) obj[1]).intValue());  
+                    return dto;
+                })
+                .toList();
+    }
+
+    
 }

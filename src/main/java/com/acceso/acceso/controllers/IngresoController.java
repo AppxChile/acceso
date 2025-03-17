@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.acceso.acceso.dto.ErrorResponse;
+import com.acceso.acceso.dto.IngresoByDeptosDates;
 import com.acceso.acceso.dto.IngresoDto;
 import com.acceso.acceso.dto.IngresoRequest;
 import com.acceso.acceso.dto.IngresoWithouSalidaDto;
@@ -85,4 +86,20 @@ public class IngresoController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
+
+    @GetMapping("/por-departamento")
+    public ResponseEntity<List<IngresoByDeptosDates>> getIngresosByDepto(
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaInicio,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaFin) {
+        try {
+            List<IngresoByDeptosDates> ingresos = ingresoService.getIngresosByDeptoBetweenDate(
+                fechaInicio.atStartOfDay(), fechaFin.atTime(23, 59, 59)
+            );
+            return ResponseEntity.ok(ingresos);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
+    }
+
+    
 }
