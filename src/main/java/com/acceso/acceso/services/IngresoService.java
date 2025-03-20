@@ -15,6 +15,7 @@ import com.acceso.acceso.dto.IngresoRequest;
 import com.acceso.acceso.dto.IngresoWithouSalidaDto;
 import com.acceso.acceso.dto.IngresosByFechasDto;
 import com.acceso.acceso.dto.IngresosByHorasDto;
+import com.acceso.acceso.dto.ListDepartamentosDto;
 import com.acceso.acceso.dto.PersonaDto;
 import com.acceso.acceso.dto.PersonaResponse;
 import com.acceso.acceso.entities.Departamento;
@@ -82,7 +83,6 @@ public class IngresoService {
                 .collect(Collectors.toSet());
 
         Ingreso ingreso = new Ingreso();
-
 
         ingreso.setHoraIngreso(fechaHoraIngreso());
         ingreso.setPersona(persona);
@@ -212,15 +212,27 @@ public class IngresoService {
         List<Object[]> resultados = ingresoRepository.findTotalIngresosByDepartamentoBetweenDates(fechaInicio,
                 fechaFin);
 
+        List<ListDepartamentosDto> deptos = apiService.getDepartamentos();
+
         return resultados.stream()
                 .map(obj -> {
                     IngresoByDeptosDates dto = new IngresoByDeptosDates();
-                    dto.setNombreDepto((String) obj[0]);
+                    dto.setId((Long) obj[0]);
                     dto.setTotalIngresos(((Number) obj[1]).intValue());
                     dto.setFechaIngreso((String) obj[2]);
+
+                    // Verifica que la lista no sea null
+                    if (deptos != null) {
+                        deptos.stream()
+                                .filter(d -> d.getId().equals(dto.getId()))
+                                .findFirst()
+                                .ifPresent(d -> dto.setNombreDepartamento(d.getNombreDepartamento()));
+                    }
+
                     return dto;
                 })
                 .toList();
+
     }
 
     public List<IngresosByHorasDto> getIngresosDayByHour() {

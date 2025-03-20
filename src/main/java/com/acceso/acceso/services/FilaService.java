@@ -72,7 +72,7 @@ public class FilaService {
 
                 Fila fila = filaRepository.findById(id)
                                 .orElseThrow(() -> new IllegalArgumentException(
-                                                "Fila con ID " + id + " no encontrada"));
+                                                "Fila " + id + " no existe"));
 
                 Ingreso ingreso = fila.getIngreso();
 
@@ -97,6 +97,23 @@ public class FilaService {
                 filaRepository.save(fila);
 
                 return new FilaResponse(fila.getId(), ingreso.getAsignadoA(), fila.getEstado().getNombre());
+        }
+
+        public void unassignIngreso(Long id) {
+
+                Fila fila = filaRepository.findById(id)
+                                .orElseThrow(() -> new IllegalArgumentException(
+                                                "Fila con ID " + id + " no encontrada"));
+
+
+                Estado estado = estadoRepository.findByNombre("DESASIGNADO")
+                                .orElseThrow(() -> new IllegalArgumentException("Estado 'DESASIGNADO' no existe"));
+
+                fila.setEstado(estado);
+                fila.setHoraToma(null);
+                filaRepository.save(fila);
+        
+
         }
 
         public FilaResponse finishIngreso(Long id) {

@@ -14,7 +14,7 @@ public class Departamento {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String nombre;
+
 
     @OneToMany(mappedBy = "departamento")
     private List<IngresoDepartamento> ingresoDepartamentos;
@@ -27,13 +27,7 @@ public class Departamento {
         this.id = id;
     }
 
-    public String getNombre() {
-        return nombre;
-    }
-
-    public void setNombre(String nombre) {
-        this.nombre = nombre;
-    }
+  
 
     public List<IngresoDepartamento> getIngresoDepartamentos() {
         return ingresoDepartamentos;

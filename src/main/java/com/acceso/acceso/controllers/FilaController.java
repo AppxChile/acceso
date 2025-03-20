@@ -49,6 +49,22 @@ public class FilaController {
 
     }
 
+    @PostMapping("/desasiginar")
+    public void unassignFila(@RequestParam Long id) {
+
+        try {
+
+            filaService.unassignIngreso(id);
+
+            ResponseEntity.status(HttpStatus.OK);
+
+        } catch (Exception e) {
+
+             ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
+
+    }
+
     @PostMapping("/finalizar")
     public ResponseEntity<Object> finishFila(@RequestParam Long id) {
 

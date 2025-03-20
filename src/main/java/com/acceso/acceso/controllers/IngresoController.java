@@ -89,7 +89,7 @@ public class IngresoController {
     }
 
     @GetMapping("/por-departamento")
-    public ResponseEntity<List<IngresoByDeptosDates>> getIngresosByDepto(
+    public ResponseEntity<Object> getIngresosByDepto(
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaInicio,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaFin) {
         try {
@@ -97,7 +97,7 @@ public class IngresoController {
                     fechaInicio.atStartOfDay(), fechaFin.atTime(23, 59, 59));
             return ResponseEntity.ok(ingresos);
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
         }
 
     }

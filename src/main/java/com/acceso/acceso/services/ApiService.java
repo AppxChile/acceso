@@ -1,10 +1,14 @@
 package com.acceso.acceso.services;
 
+import java.util.List;
+
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import com.acceso.acceso.config.ApiProperties;
+import com.acceso.acceso.dto.ListDepartamentosDto;
 import com.acceso.acceso.dto.PersonaResponse;
 import com.acceso.acceso.dto.UsuarioResponse;
 
@@ -42,6 +46,17 @@ public class ApiService {
                 .onErrorResume(Exception.class, e -> Mono.empty())
                 .block();
 
+    }
+
+    public List<ListDepartamentosDto> getDepartamentos() {
+        return webClientUsuarios.get()
+                .uri("/departamentos/list")
+                .retrieve()
+                .onStatus(HttpStatusCode::is4xxClientError, response -> Mono.empty())
+                .bodyToMono(new ParameterizedTypeReference<List<ListDepartamentosDto>>() {
+                })
+                .onErrorResume(Exception.class, e -> Mono.empty())
+                .block();
     }
 
 }
