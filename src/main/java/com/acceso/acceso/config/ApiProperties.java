@@ -11,6 +11,9 @@ public class ApiProperties {
 
     private String usuariosUrl;
 
+    private String agendaUrl;
+    
+
     public String getPersonaUrl() {
         return personaUrl;
     }
@@ -25,6 +28,14 @@ public class ApiProperties {
 
     public void setUsuariosUrl(String usuariosUrl) {
         this.usuariosUrl = usuariosUrl;
+    }
+
+    public String getAgendaUrl() {
+        return agendaUrl;
+    }
+
+    public void setAgendaUrl(String agendaUrl) {
+        this.agendaUrl = agendaUrl;
     }
 
 }

@@ -8,9 +8,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import com.acceso.acceso.config.ApiProperties;
+import com.acceso.acceso.dto.CitaResponse;
 import com.acceso.acceso.dto.ListDepartamentosDto;
 import com.acceso.acceso.dto.PersonaResponse;
 import com.acceso.acceso.dto.UsuarioResponse;
+import org.springframework.http.HttpHeaders;
 
 import reactor.core.publisher.Mono;
 
@@ -21,9 +23,12 @@ public class ApiService {
 
     private final WebClient webClientUsuarios;
 
+    private final WebClient webClientCitas;
+
     public ApiService(WebClient.Builder webClientBuilder, ApiProperties apiProperties) {
         this.webClientPersonas = webClientBuilder.baseUrl(apiProperties.getPersonaUrl()).build();
         this.webClientUsuarios = webClientBuilder.baseUrl(apiProperties.getUsuariosUrl()).build();
+        this.webClientCitas = webClientBuilder.baseUrl(apiProperties.getAgendaUrl()).build();
     }
 
     public PersonaResponse getPersonaInfo(Integer rut) {
@@ -58,5 +63,18 @@ public class ApiService {
                 .onErrorResume(Exception.class, e -> Mono.empty())
                 .block();
     }
+
+    public List<CitaResponse> getCitas(Integer rut, String token) {
+        return webClientCitas.get()
+                .uri("/findByRut/{rut}", rut)
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
+                .retrieve()
+                .onStatus(HttpStatusCode::is4xxClientError, response -> Mono.empty())
+                .bodyToMono(new ParameterizedTypeReference<List<CitaResponse>>() {
+                })
+                .onErrorResume(Exception.class, e -> Mono.empty())
+                .block();
+    }
+    
 
 }

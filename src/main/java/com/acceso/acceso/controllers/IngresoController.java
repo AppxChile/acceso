@@ -26,6 +26,9 @@ import com.acceso.acceso.dto.IngresosByHorasDto;
 import com.acceso.acceso.exceptions.MyExceptions;
 import com.acceso.acceso.services.IngresoService;
 
+import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.http.HttpHeaders;
+
 @RestController
 @CrossOrigin(origins = "https://dev.appx.cl/")
 @RequestMapping("/api/acceso/ingreso")
@@ -38,9 +41,11 @@ public class IngresoController {
     }
 
     @PostMapping
-    public ResponseEntity<Object> createIngreso(@RequestBody IngresoRequest request) {
+    public ResponseEntity<Object> createIngreso(HttpServletRequest request, @RequestBody IngresoRequest ingresoRequest) {
         try {
-            IngresoDto ingreso = ingresoService.createIngreso(request);
+
+            String token = getTokenFromRequest(request);
+            IngresoDto ingreso = ingresoService.createIngreso(ingresoRequest, token);
             return ResponseEntity.status(HttpStatus.CREATED).body(ingreso);
 
         } catch (MyExceptions e) {
@@ -111,6 +116,14 @@ public class IngresoController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
 
+    }
+
+    private String getTokenFromRequest(HttpServletRequest request) {
+        String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
+        if (authHeader != null && authHeader.startsWith("Bearer ")) {
+            return authHeader.replace("Bearer ", "");
+        }
+        return null;
     }
 
 }

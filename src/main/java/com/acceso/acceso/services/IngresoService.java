@@ -1,5 +1,6 @@
 package com.acceso.acceso.services;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.List;
@@ -9,6 +10,7 @@ import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
+import com.acceso.acceso.dto.CitaResponse;
 import com.acceso.acceso.dto.IngresoByDeptosDates;
 import com.acceso.acceso.dto.IngresoDto;
 import com.acceso.acceso.dto.IngresoRequest;
@@ -68,10 +70,25 @@ public class IngresoService {
         this.apiService = apiService;
     }
 
-    public IngresoDto createIngreso(IngresoRequest request) {
+    public IngresoDto createIngreso(IngresoRequest request, String token) {
 
         Persona persona = getOrCreatePersona(request.getRut(), request.getSerie());
 
+        List<CitaResponse> citas = apiService.getCitas(persona.getRut(), token);
+
+
+        
+
+        if (!citas.isEmpty()) {
+            citas = citas.stream()
+                         .filter(cita -> {
+                             LocalDate fechaIngreso = fechaHoraIngreso().toLocalDate();
+                             return cita.getFechaHora().toLocalDate().equals(fechaIngreso);  
+                         })
+                         .toList();
+        }
+
+        
         if (hasIngresoWithoutSalida(persona)) {
             throw new MyExceptions("Persona no tiene registrada una salida");
         }
@@ -86,6 +103,7 @@ public class IngresoService {
 
         ingreso.setHoraIngreso(fechaHoraIngreso());
         ingreso.setPersona(persona);
+        
 
         ingreso = ingresoRepository.save(ingreso);
 
@@ -105,7 +123,7 @@ public class IngresoService {
         fila.setEstado(estadoInicial);
         filaRepository.save(fila);
 
-        return convertDTO(ingreso, estadoInicial);
+        return convertDTO(ingreso, estadoInicial, citas);
     }
 
     private LocalDateTime fechaHoraIngreso() {
@@ -114,7 +132,9 @@ public class IngresoService {
 
     }
 
-    private IngresoDto convertDTO(Ingreso ingreso, Estado estado) {
+
+
+    private IngresoDto convertDTO(Ingreso ingreso, Estado estado, List<CitaResponse> cita) {
         IngresoDto dto = new IngresoDto();
         dto.setId(ingreso.getId());
         dto.setHoraIngreso(ingreso.getHoraIngreso());
@@ -133,6 +153,7 @@ public class IngresoService {
         dto.setDepartamentos(departamentos);
 
         dto.setEstadoFila(estado.getNombre());
+        dto.setCita(cita);
 
         return dto;
     }
