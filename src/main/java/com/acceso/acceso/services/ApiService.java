@@ -9,6 +9,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 
 import com.acceso.acceso.config.ApiProperties;
 import com.acceso.acceso.dto.CitaResponse;
+import com.acceso.acceso.dto.DepartamentoResponse;
 import com.acceso.acceso.dto.ListDepartamentosDto;
 import com.acceso.acceso.dto.PersonaResponse;
 import com.acceso.acceso.dto.UsuarioResponse;
@@ -64,6 +65,24 @@ public class ApiService {
                 .block();
     }
 
+    public DepartamentoResponse getDepartamentoById(Long id) {
+        try {
+            return webClientUsuarios.get()
+                    .uri("/departamentos/byId/{id}", id) // Corregido el paréntesis en la URL
+                    .retrieve()
+                    .onStatus(HttpStatusCode::is4xxClientError, response -> Mono.empty())
+                    .onStatus(HttpStatusCode::is5xxServerError, response -> Mono.empty())
+                    .bodyToMono(DepartamentoResponse.class)
+                    .onErrorResume(Exception.class, e -> Mono.empty())
+                    .block();
+    
+        } catch (Exception e) {
+            return null; // O puedes devolver un valor por defecto, dependiendo de tu lógica
+        }
+    }
+    
+    
+
     public List<CitaResponse> getCitas(Integer rut, String token) {
         return webClientCitas.get()
                 .uri("/findByRut/{rut}", rut)
@@ -75,6 +94,5 @@ public class ApiService {
                 .onErrorResume(Exception.class, e -> Mono.empty())
                 .block();
     }
-    
 
 }

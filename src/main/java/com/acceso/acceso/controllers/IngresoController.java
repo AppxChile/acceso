@@ -27,7 +27,6 @@ import com.acceso.acceso.exceptions.MyExceptions;
 import com.acceso.acceso.services.IngresoService;
 
 import jakarta.servlet.http.HttpServletRequest;
-import org.springframework.http.HttpHeaders;
 
 @RestController
 @CrossOrigin(origins = "https://dev.appx.cl/")
@@ -44,8 +43,8 @@ public class IngresoController {
     public ResponseEntity<Object> createIngreso(HttpServletRequest request, @RequestBody IngresoRequest ingresoRequest) {
         try {
 
-            String token = getTokenFromRequest(request);
-            IngresoDto ingreso = ingresoService.createIngreso(ingresoRequest, token);
+         
+            IngresoDto ingreso = ingresoService.createIngreso(ingresoRequest);
             return ResponseEntity.status(HttpStatus.CREATED).body(ingreso);
 
         } catch (MyExceptions e) {
@@ -118,12 +117,5 @@ public class IngresoController {
 
     }
 
-    private String getTokenFromRequest(HttpServletRequest request) {
-        String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
-        if (authHeader != null && authHeader.startsWith("Bearer ")) {
-            return authHeader.replace("Bearer ", "");
-        }
-        return null;
-    }
-
+   
 }

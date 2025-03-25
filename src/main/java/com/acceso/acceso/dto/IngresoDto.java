@@ -11,7 +11,6 @@ public class IngresoDto {
     private List<Long> departamentos;
     private String estadoFila;
 
-    private List<CitaResponse> cita;
 
     
 
@@ -53,14 +52,6 @@ public class IngresoDto {
 
     public void setEstadoFila(String estadoFila) {
         this.estadoFila = estadoFila;
-    }
-
-    public List<CitaResponse> getCita() {
-        return cita;
-    }
-
-    public void setCita(List<CitaResponse> cita) {
-        this.cita = cita;
     }
 
 

@@ -10,7 +10,7 @@ import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
-import com.acceso.acceso.dto.CitaResponse;
+import com.acceso.acceso.dto.DepartamentoResponse;
 import com.acceso.acceso.dto.IngresoByDeptosDates;
 import com.acceso.acceso.dto.IngresoDto;
 import com.acceso.acceso.dto.IngresoRequest;
@@ -28,7 +28,6 @@ import com.acceso.acceso.entities.IngresoDepartamento;
 import com.acceso.acceso.entities.Persona;
 import com.acceso.acceso.entities.Salida;
 import com.acceso.acceso.exceptions.MyExceptions;
-import com.acceso.acceso.repositories.DepartamentoRepository;
 import com.acceso.acceso.repositories.EstadoRepository;
 import com.acceso.acceso.repositories.FilaRepository;
 import com.acceso.acceso.repositories.IngresoDepartamentoRepository;
@@ -43,7 +42,6 @@ public class IngresoService {
 
     private final PersonaRepository personaRepository;
 
-    private final DepartamentoRepository departamentoRepository;
 
     private final IngresoDepartamentoRepository ingresoDepartamentoRepository;
 
@@ -55,48 +53,39 @@ public class IngresoService {
 
     private final ApiService apiService;
 
+    private final DepartamentoService departamentoService;
+
     public IngresoService(IngresoRepository ingresoRepository, PersonaRepository personaRepository,
-            DepartamentoRepository departamentoRepository, IngresoDepartamentoRepository ingresoDepartamentoRepository,
+            IngresoDepartamentoRepository ingresoDepartamentoRepository,
             FilaRepository filaRepository, EstadoRepository estadoRepository,
             SalidaRepository salidaRepository,
-            ApiService apiService) {
+            ApiService apiService,
+            DepartamentoService departamentoService) {
         this.ingresoRepository = ingresoRepository;
         this.personaRepository = personaRepository;
-        this.departamentoRepository = departamentoRepository;
         this.ingresoDepartamentoRepository = ingresoDepartamentoRepository;
         this.filaRepository = filaRepository;
         this.estadoRepository = estadoRepository;
         this.salidaRepository = salidaRepository;
         this.apiService = apiService;
+        this.departamentoService=departamentoService;
     }
 
-    public IngresoDto createIngreso(IngresoRequest request, String token) {
+    public IngresoDto createIngreso(IngresoRequest request) {
 
         Persona persona = getOrCreatePersona(request.getRut(), request.getSerie());
 
-        List<CitaResponse> citas = apiService.getCitas(persona.getRut(), token);
+            
 
-
-        
-
-        if (!citas.isEmpty()) {
-            citas = citas.stream()
-                         .filter(cita -> {
-                             LocalDate fechaIngreso = fechaHoraIngreso().toLocalDate();
-                             return cita.getFechaHora().toLocalDate().equals(fechaIngreso);  
-                         })
-                         .toList();
-        }
+     
 
         
         if (hasIngresoWithoutSalida(persona)) {
             throw new MyExceptions("Persona no tiene registrada una salida");
         }
 
-        Set<Departamento> departamentos = request.getIdDepartamentos().stream()
-                .map(id -> departamentoRepository.findById(id)
-                        .orElseThrow(
-                                () -> new IllegalArgumentException("No se encontró el departamento con ID: " + id)))
+        Set<DepartamentoResponse> departamentos = request.getIdDepartamentos().stream()
+                .map(departamentoService::findById)
                 .collect(Collectors.toSet());
 
         Ingreso ingreso = new Ingreso();
@@ -107,10 +96,12 @@ public class IngresoService {
 
         ingreso = ingresoRepository.save(ingreso);
 
-        for (Departamento departamento : departamentos) {
+        for (DepartamentoResponse departamento : departamentos) {
             IngresoDepartamento ingresoDepartamento = new IngresoDepartamento();
+            Departamento depto = new Departamento();
+            depto.setId(departamento.getId());
             ingresoDepartamento.setIngreso(ingreso);
-            ingresoDepartamento.setDepartamento(departamento);
+            ingresoDepartamento.setDepartamento(depto);
             ingresoDepartamentoRepository.save(ingresoDepartamento);
         }
 
@@ -123,7 +114,7 @@ public class IngresoService {
         fila.setEstado(estadoInicial);
         filaRepository.save(fila);
 
-        return convertDTO(ingreso, estadoInicial, citas);
+        return convertDTO(ingreso, estadoInicial);
     }
 
     private LocalDateTime fechaHoraIngreso() {
@@ -134,7 +125,7 @@ public class IngresoService {
 
 
 
-    private IngresoDto convertDTO(Ingreso ingreso, Estado estado, List<CitaResponse> cita) {
+    private IngresoDto convertDTO(Ingreso ingreso, Estado estado) {
         IngresoDto dto = new IngresoDto();
         dto.setId(ingreso.getId());
         dto.setHoraIngreso(ingreso.getHoraIngreso());
@@ -153,7 +144,6 @@ public class IngresoService {
         dto.setDepartamentos(departamentos);
 
         dto.setEstadoFila(estado.getNombre());
-        dto.setCita(cita);
 
         return dto;
     }
