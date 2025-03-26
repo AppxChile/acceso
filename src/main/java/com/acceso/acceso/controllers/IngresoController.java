@@ -24,7 +24,7 @@ import com.acceso.acceso.dto.IngresoWithouSalidaDto;
 import com.acceso.acceso.dto.IngresosByFechasDto;
 import com.acceso.acceso.dto.IngresosByHorasDto;
 import com.acceso.acceso.exceptions.MyExceptions;
-import com.acceso.acceso.services.IngresoService;
+import com.acceso.acceso.services.interfaces.IngresoService;
 
 import jakarta.servlet.http.HttpServletRequest;
 

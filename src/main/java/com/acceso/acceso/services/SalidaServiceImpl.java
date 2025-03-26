@@ -12,42 +12,37 @@ import com.acceso.acceso.entities.Ingreso;
 import com.acceso.acceso.entities.Persona;
 import com.acceso.acceso.entities.Salida;
 import com.acceso.acceso.exceptions.MyExceptions;
-import com.acceso.acceso.repositories.IngresoRepository;
-import com.acceso.acceso.repositories.PersonaRepository;
 import com.acceso.acceso.repositories.SalidaRepository;
+import com.acceso.acceso.services.interfaces.ApiPersonaService;
+import com.acceso.acceso.services.interfaces.IngresoService;
+import com.acceso.acceso.services.interfaces.PersonaService;
+import com.acceso.acceso.services.interfaces.SalidaService;
 
 @Service
-public class SalidaService {
-
-    private final IngresoRepository ingresoRepository;
+public class SalidaServiceImpl implements SalidaService {
 
     private final SalidaRepository salidaRepository;
 
-    private final PersonaRepository personaRepository;
+    private final PersonaService personaService;
 
-    private final ApiService apiService;
+    private final ApiPersonaService apiPersonaService;
 
-    public SalidaService(IngresoRepository ingresoRepository,
-            SalidaRepository salidaRepository,
-            PersonaRepository personaRepository,
-            ApiService apiService) {
-        this.ingresoRepository = ingresoRepository;
+    private final IngresoService ingresoService;
+
+    public SalidaServiceImpl(SalidaRepository salidaRepository, PersonaService personaService,
+            ApiPersonaService apiPersonaService,
+            IngresoService ingresoService) {
         this.salidaRepository = salidaRepository;
-        this.personaRepository = personaRepository;
-        this.apiService = apiService;
+        this.personaService = personaService;
+        this.apiPersonaService = apiPersonaService;
+        this.ingresoService = ingresoService;
     }
 
+    @Override
     public Salida createSalida(Integer rut) {
+        Persona persona = personaService.findByRut(rut);
 
-        Persona persona = personaRepository.findByRut(rut).orElseThrow(() -> new MyExceptions("No Existe el rut"));
-
-        Optional<Ingreso> optIngreso = ingresoRepository.findTopByPersonaOrderByHoraIngresoDesc(persona);
-
-        if (!optIngreso.isPresent()) {
-            throw new MyExceptions("No existe ingereso para el rut dado");
-        }
-
-        Ingreso ingreso = optIngreso.get();
+        Ingreso ingreso = ingresoService.findTopByPersonaOrderByHoraIngresoDesc(persona);
 
         Optional<Salida> optSalida = salidaRepository.findByIngreso(ingreso);
 
@@ -59,11 +54,10 @@ public class SalidaService {
         salida.setIngreso(ingreso);
         salida.setHoraSalida(LocalDateTime.now());
         return salidaRepository.save(salida);
-
     }
 
+    @Override
     public List<SalidasByFechasDto> getSalidasBetweenDates(LocalDateTime fechaInicio, LocalDateTime fechaFin) {
-
         List<Salida> salidas = salidaRepository.findByHoraSalidaBetween(fechaInicio, fechaFin);
 
         return salidas.stream()
@@ -74,7 +68,7 @@ public class SalidaService {
                     dto.setFechaSalida(sali.getHoraSalida());
                     dto.setFechaIngreso(sali.getIngreso().getHoraIngreso());
 
-                    PersonaResponse personaResponse = apiService
+                    PersonaResponse personaResponse = apiPersonaService
                             .getPersonaInfo(sali.getIngreso().getPersona().getRut());
 
                     dto.setRut(personaResponse.getRut().toString().concat("-").concat(personaResponse.getVrut()));
@@ -85,7 +79,22 @@ public class SalidaService {
                     return dto;
 
                 }).toList();
+    }
 
+    @Override
+    public Salida save(Salida salida) {
+        return salidaRepository.save(salida);
+    }
+
+    @Override
+    public Salida findById(Long id) {
+        return salidaRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("No existe el id"));
+    }
+
+    @Override
+    public Optional<Salida> findByIngreso(Ingreso ingreso) {
+       return salidaRepository.findByIngreso(ingreso);
     }
 
 }

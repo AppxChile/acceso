@@ -20,7 +20,7 @@ import com.acceso.acceso.dto.ErrorResponse;
 import com.acceso.acceso.dto.SalidasByFechasDto;
 import com.acceso.acceso.entities.Salida;
 import com.acceso.acceso.exceptions.MyExceptions;
-import com.acceso.acceso.services.SalidaService;
+import com.acceso.acceso.services.interfaces.SalidaService;
 
 @RestController
 @CrossOrigin(origins = "https://dev.appx.cl/")

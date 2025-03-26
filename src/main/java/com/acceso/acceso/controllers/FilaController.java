@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.acceso.acceso.dto.FilaDto;
 import com.acceso.acceso.dto.FilaResponse;
-import com.acceso.acceso.services.FilaService;
+import com.acceso.acceso.services.interfaces.FilaService;
 
 @RestController
 @CrossOrigin(origins = "https://dev.appx.cl/")

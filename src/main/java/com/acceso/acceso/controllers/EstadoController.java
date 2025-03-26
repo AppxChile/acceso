@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.acceso.acceso.entities.Estado;
-import com.acceso.acceso.services.EstadoService;
+import com.acceso.acceso.services.interfaces.EstadoService;
 
 @RestController
 @CrossOrigin(origins = "https://dev.appx.cl/")

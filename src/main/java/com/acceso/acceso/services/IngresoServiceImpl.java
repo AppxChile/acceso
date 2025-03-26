@@ -1,6 +1,5 @@
 package com.acceso.acceso.services;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.List;
@@ -28,58 +27,62 @@ import com.acceso.acceso.entities.IngresoDepartamento;
 import com.acceso.acceso.entities.Persona;
 import com.acceso.acceso.entities.Salida;
 import com.acceso.acceso.exceptions.MyExceptions;
-import com.acceso.acceso.repositories.EstadoRepository;
-import com.acceso.acceso.repositories.FilaRepository;
-import com.acceso.acceso.repositories.IngresoDepartamentoRepository;
 import com.acceso.acceso.repositories.IngresoRepository;
-import com.acceso.acceso.repositories.PersonaRepository;
-import com.acceso.acceso.repositories.SalidaRepository;
+import com.acceso.acceso.services.interfaces.ApiDepartamentoService;
+import com.acceso.acceso.services.interfaces.ApiPersonaService;
+import com.acceso.acceso.services.interfaces.DepartamentoService;
+import com.acceso.acceso.services.interfaces.EstadoService;
+import com.acceso.acceso.services.interfaces.FilaService;
+import com.acceso.acceso.services.interfaces.IngresoDepartamentoService;
+import com.acceso.acceso.services.interfaces.IngresoService;
+import com.acceso.acceso.services.interfaces.PersonaService;
+import com.acceso.acceso.services.interfaces.SalidaService;
 
 @Service
-public class IngresoService {
+public class IngresoServiceImpl implements IngresoService {
 
-    private final IngresoRepository ingresoRepository;
-
-    private final PersonaRepository personaRepository;
-
-
-    private final IngresoDepartamentoRepository ingresoDepartamentoRepository;
-
-    private final FilaRepository filaRepository;
-
-    private final EstadoRepository estadoRepository;
-
-    private final SalidaRepository salidaRepository;
-
-    private final ApiService apiService;
+    private final PersonaService personaService;
 
     private final DepartamentoService departamentoService;
 
-    public IngresoService(IngresoRepository ingresoRepository, PersonaRepository personaRepository,
-            IngresoDepartamentoRepository ingresoDepartamentoRepository,
-            FilaRepository filaRepository, EstadoRepository estadoRepository,
-            SalidaRepository salidaRepository,
-            ApiService apiService,
-            DepartamentoService departamentoService) {
+    private final EstadoService estadoService;
+
+    private final ApiPersonaService apiPersonaService;
+
+    private final ApiDepartamentoService apiDepartamentoService;
+
+    private final FilaService filaService;
+
+    private final IngresoDepartamentoService ingresoDepartamentoService;
+
+    private final SalidaService salidaService;
+
+    private final IngresoRepository ingresoRepository;
+
+    public IngresoServiceImpl(PersonaService personaService, DepartamentoService departamentoService,
+            EstadoService estadoService,
+            IngresoRepository ingresoRepository,
+            ApiPersonaService apiPersonaService,
+            IngresoDepartamentoService ingresoDepartamentoService,
+            ApiDepartamentoService apiDepartamentoService,
+            FilaService filaService,
+            SalidaService salidaService) {
+        this.personaService = personaService;
+        this.departamentoService = departamentoService;
+        this.estadoService = estadoService;
         this.ingresoRepository = ingresoRepository;
-        this.personaRepository = personaRepository;
-        this.ingresoDepartamentoRepository = ingresoDepartamentoRepository;
-        this.filaRepository = filaRepository;
-        this.estadoRepository = estadoRepository;
-        this.salidaRepository = salidaRepository;
-        this.apiService = apiService;
-        this.departamentoService=departamentoService;
+        this.apiPersonaService = apiPersonaService;
+        this.ingresoDepartamentoService = ingresoDepartamentoService;
+        this.apiDepartamentoService = apiDepartamentoService;
+        this.filaService = filaService;
+        this.salidaService=salidaService;
     }
 
+    @Override
     public IngresoDto createIngreso(IngresoRequest request) {
 
-        Persona persona = getOrCreatePersona(request.getRut(), request.getSerie());
+        Persona persona = personaService.getOrCreatePersona(request.getRut(), request.getSerie());
 
-            
-
-     
-
-        
         if (hasIngresoWithoutSalida(persona)) {
             throw new MyExceptions("Persona no tiene registrada una salida");
         }
@@ -92,7 +95,6 @@ public class IngresoService {
 
         ingreso.setHoraIngreso(fechaHoraIngreso());
         ingreso.setPersona(persona);
-        
 
         ingreso = ingresoRepository.save(ingreso);
 
@@ -102,19 +104,127 @@ public class IngresoService {
             depto.setId(departamento.getId());
             ingresoDepartamento.setIngreso(ingreso);
             ingresoDepartamento.setDepartamento(depto);
-            ingresoDepartamentoRepository.save(ingresoDepartamento);
+            ingresoDepartamentoService.save(ingresoDepartamento);
         }
 
-        Estado estadoInicial = estadoRepository.findByNombre("EN ESPERA")
-                .orElseThrow(() -> new IllegalArgumentException("No se encontró el estado inicial"));
+        Estado estadoInicial = estadoService.findByNombre("EN ESPERA");
 
         Fila fila = new Fila();
 
         fila.setIngreso(ingreso);
         fila.setEstado(estadoInicial);
-        filaRepository.save(fila);
+        filaService.save(fila);
 
         return convertDTO(ingreso, estadoInicial);
+    }
+
+    @Override
+    public List<IngresosByFechasDto> getIngresosBetweenDates(LocalDateTime fechaInicio, LocalDateTime fechaFin) {
+        List<Ingreso> ingresos = ingresoRepository.findByhoraIngresoBetween(fechaInicio, fechaFin);
+
+        return ingresos.stream().map(ingr -> {
+            IngresosByFechasDto dto = new IngresosByFechasDto();
+            dto.setFechaIngreso(ingr.getHoraIngreso());
+
+            if (ingr.getPersona() != null) {
+                PersonaResponse personaResponse = apiPersonaService.getPersonaInfo(ingr.getPersona().getRut());
+                dto.setNombre(personaResponse != null ? personaResponse.getNombres().concat(" ")
+                        .concat(personaResponse.getPaterno().concat(" ").concat(personaResponse.getMaterno()))
+                        : "Desconocido");
+                dto.setRut(personaResponse.getRut().toString().concat("-").concat(personaResponse.getVrut()));
+            } else {
+                dto.setNombre("Desconocido");
+            }
+
+            if (ingr.getSalida() != null) {
+                dto.setFechaSalida(ingr.getSalida().getHoraSalida());
+            } else {
+                dto.setFechaSalida(null);
+            }
+
+            return dto;
+        }).toList();
+    }
+
+    @Override
+    public List<IngresoWithouSalidaDto> getIngresoSalidaNull() {
+
+        List<Ingreso> ingresos = ingresoRepository.findBySalidaIsNull();
+
+        return ingresos.stream().map(ing -> {
+
+            IngresoWithouSalidaDto dto = new IngresoWithouSalidaDto();
+
+            PersonaResponse personaResponse = apiPersonaService.getPersonaInfo(ing.getPersona().getRut());
+
+            dto.setRut(personaResponse.getRut().toString().concat("-").concat(personaResponse.getVrut()));
+            dto.setNombre(personaResponse.getNombres().concat(" ")
+                    .concat(personaResponse.getPaterno().concat(" ").concat(personaResponse.getMaterno())));
+            dto.setHoraIngreso(ing.getHoraIngreso());
+
+            return dto;
+
+        }).toList();
+
+    }
+
+    @Override
+    public List<IngresoByDeptosDates> getIngresosByDeptoBetweenDate(LocalDateTime fechaInicio, LocalDateTime fechaFin) {
+        List<Object[]> resultados = ingresoRepository.findTotalIngresosByDepartamentoBetweenDates(fechaInicio,
+                fechaFin);
+
+        List<ListDepartamentosDto> deptos = apiDepartamentoService.getDepartamentos();
+
+        return resultados.stream()
+                .map(obj -> {
+                    IngresoByDeptosDates dto = new IngresoByDeptosDates();
+                    dto.setId((Long) obj[0]);
+                    dto.setTotalIngresos(((Number) obj[1]).intValue());
+                    dto.setFechaIngreso((String) obj[2]);
+
+                    // Verifica que la lista no sea null
+                    if (deptos != null) {
+                        deptos.stream()
+                                .filter(d -> d.getId().equals(dto.getId()))
+                                .findFirst()
+                                .ifPresent(d -> dto.setNombreDepartamento(d.getNombreDepartamento()));
+                    }
+
+                    return dto;
+                })
+                .toList();
+    }
+
+    @Override
+    public List<IngresosByHorasDto> getIngresosDayByHour() {
+        List<Object[]> response = ingresoRepository.findIngresosByHour();
+
+        return response.stream().map(res -> {
+
+            IngresosByHorasDto dto = new IngresosByHorasDto();
+
+            dto.setHora(((Number) res[0]).intValue());
+            dto.setTotal(((Number) res[1]).intValue());
+            dto.setFecha((String) res[2]);
+
+            return dto;
+
+        }).toList();
+
+    }
+
+    private boolean hasIngresoWithoutSalida(Persona persona) {
+        Optional<Ingreso> optUltimoIngreso = ingresoRepository.findTopByPersonaOrderByHoraIngresoDesc(persona);
+
+        if (optUltimoIngreso.isEmpty()) {
+            return false;
+        }
+
+        Ingreso ultimoIngreso = optUltimoIngreso.get();
+
+        Optional<Salida> optSalida = salidaService.findByIngreso(ultimoIngreso);
+
+        return optSalida.isEmpty();
     }
 
     private LocalDateTime fechaHoraIngreso() {
@@ -122,8 +232,6 @@ public class IngresoService {
         return LocalDateTime.now(zonaChile);
 
     }
-
-
 
     private IngresoDto convertDTO(Ingreso ingreso, Estado estado) {
         IngresoDto dto = new IngresoDto();
@@ -148,120 +256,14 @@ public class IngresoService {
         return dto;
     }
 
-    private Persona getOrCreatePersona(Integer rut, String serie) {
-
-        return personaRepository.findByRut(rut)
-                .orElseGet(() -> {
-                    Persona nuevaPersona = new Persona(rut, serie);
-                    return personaRepository.save(nuevaPersona);
-                });
+    @Override
+    public Ingreso save(Ingreso ingreso) {
+        return ingresoRepository.save(ingreso);
     }
 
-    private boolean hasIngresoWithoutSalida(Persona persona) {
-        Optional<Ingreso> optUltimoIngreso = ingresoRepository.findTopByPersonaOrderByHoraIngresoDesc(persona);
-
-        if (optUltimoIngreso.isEmpty()) {
-            return false;
-        }
-
-        Ingreso ultimoIngreso = optUltimoIngreso.get();
-
-        Optional<Salida> optSalida = salidaRepository.findByIngreso(ultimoIngreso);
-
-        return optSalida.isEmpty();
+    @Override
+    public Ingreso findTopByPersonaOrderByHoraIngresoDesc(Persona persona) {
+        return ingresoRepository.findTopByPersonaOrderByHoraIngresoDesc(persona)
+                .orElseThrow(() -> new MyExceptions("no existe ingreso para el rut"));
     }
-
-    public List<IngresosByFechasDto> getIngresosBetweenDates(LocalDateTime fechaInicio, LocalDateTime fechaFin) {
-        List<Ingreso> ingresos = ingresoRepository.findByhoraIngresoBetween(fechaInicio, fechaFin);
-
-        return ingresos.stream().map(ingr -> {
-            IngresosByFechasDto dto = new IngresosByFechasDto();
-            dto.setFechaIngreso(ingr.getHoraIngreso());
-
-            if (ingr.getPersona() != null) {
-                PersonaResponse personaResponse = apiService.getPersonaInfo(ingr.getPersona().getRut());
-                dto.setNombre(personaResponse != null ? personaResponse.getNombres().concat(" ")
-                        .concat(personaResponse.getPaterno().concat(" ").concat(personaResponse.getMaterno()))
-                        : "Desconocido");
-                dto.setRut(personaResponse.getRut().toString().concat("-").concat(personaResponse.getVrut()));
-            } else {
-                dto.setNombre("Desconocido");
-            }
-
-            if (ingr.getSalida() != null) {
-                dto.setFechaSalida(ingr.getSalida().getHoraSalida());
-            } else {
-                dto.setFechaSalida(null);
-            }
-
-            return dto;
-        }).toList();
-    }
-
-    public List<IngresoWithouSalidaDto> getIngresoSalidaNull() {
-
-        List<Ingreso> ingresos = ingresoRepository.findBySalidaIsNull();
-
-        return ingresos.stream().map(ing -> {
-
-            IngresoWithouSalidaDto dto = new IngresoWithouSalidaDto();
-
-            PersonaResponse personaResponse = apiService.getPersonaInfo(ing.getPersona().getRut());
-
-            dto.setRut(personaResponse.getRut().toString().concat("-").concat(personaResponse.getVrut()));
-            dto.setNombre(personaResponse.getNombres().concat(" ")
-                    .concat(personaResponse.getPaterno().concat(" ").concat(personaResponse.getMaterno())));
-            dto.setHoraIngreso(ing.getHoraIngreso());
-
-            return dto;
-
-        }).toList();
-
-    }
-
-    public List<IngresoByDeptosDates> getIngresosByDeptoBetweenDate(LocalDateTime fechaInicio, LocalDateTime fechaFin) {
-        List<Object[]> resultados = ingresoRepository.findTotalIngresosByDepartamentoBetweenDates(fechaInicio,
-                fechaFin);
-
-        List<ListDepartamentosDto> deptos = apiService.getDepartamentos();
-
-        return resultados.stream()
-                .map(obj -> {
-                    IngresoByDeptosDates dto = new IngresoByDeptosDates();
-                    dto.setId((Long) obj[0]);
-                    dto.setTotalIngresos(((Number) obj[1]).intValue());
-                    dto.setFechaIngreso((String) obj[2]);
-
-                    // Verifica que la lista no sea null
-                    if (deptos != null) {
-                        deptos.stream()
-                                .filter(d -> d.getId().equals(dto.getId()))
-                                .findFirst()
-                                .ifPresent(d -> dto.setNombreDepartamento(d.getNombreDepartamento()));
-                    }
-
-                    return dto;
-                })
-                .toList();
-
-    }
-
-    public List<IngresosByHorasDto> getIngresosDayByHour() {
-
-        List<Object[]> response = ingresoRepository.findIngresosByHour();
-
-        return response.stream().map(res -> {
-
-            IngresosByHorasDto dto = new IngresosByHorasDto();
-
-            dto.setHora(((Number) res[0]).intValue());
-            dto.setTotal(((Number) res[1]).intValue());
-            dto.setFecha((String) res[2]);
-
-            return dto;
-
-        }).toList();
-
-    }
-
 }
