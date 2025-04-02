@@ -7,8 +7,6 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 
@@ -20,8 +18,9 @@ public class Ingreso {
 
     private LocalDateTime horaIngreso;
 
-    @ManyToOne
-    private Persona persona;
+    private Integer rut;
+
+    private String serie;
 
     @OneToMany(mappedBy = "ingreso")
     private List<IngresoDepartamento> ingresoDepartamentos;
@@ -31,20 +30,6 @@ public class Ingreso {
 
     @OneToOne(mappedBy = "ingreso")
     private Salida salida;
-
-    @ManyToOne
-    @JoinColumn(name = "modulo_id")
-    private Modulo modulo; // Relación con el modulo
-
-    private String asignadoA;
-
-    public Modulo getModulo() {
-        return modulo;
-    }
-
-    public void setModulo(Modulo modulo) {
-        this.modulo = modulo;
-    }
 
     public Long getId() {
         return id;
@@ -60,14 +45,6 @@ public class Ingreso {
 
     public void setHoraIngreso(LocalDateTime horaIngreso) {
         this.horaIngreso = horaIngreso;
-    }
-
-    public Persona getPersona() {
-        return persona;
-    }
-
-    public void setPersona(Persona persona) {
-        this.persona = persona;
     }
 
     public List<IngresoDepartamento> getIngresoDepartamentos() {
@@ -94,12 +71,24 @@ public class Ingreso {
         this.salida = salida;
     }
 
-    public String getAsignadoA() {
-        return asignadoA;
+    public Integer getRut() {
+        return rut;
     }
 
-    public void setAsignadoA(String asignadoA) {
-        this.asignadoA = asignadoA;
+    public void setRut(Integer rut) {
+        this.rut = rut;
+    }
+
+    public String getSerie() {
+        return serie;
+    }
+
+    public void setSerie(String serie) {
+        this.serie = serie;
+    }
+
+    public LocalDateTime getHoraSalida(){
+        return this.salida.getHoraSalida();
     }
 
 }

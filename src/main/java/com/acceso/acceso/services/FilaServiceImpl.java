@@ -2,146 +2,172 @@ package com.acceso.acceso.services;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 
-import com.acceso.acceso.dto.FilaDto;
+import com.acceso.acceso.dto.AssignRequest;
 import com.acceso.acceso.dto.FilaResponse;
-import com.acceso.acceso.dto.PersonaResponse;
+import com.acceso.acceso.dto.FinishRequest;
+import com.acceso.acceso.dto.UnassigRequest;
 import com.acceso.acceso.dto.UsuarioResponse;
+import com.acceso.acceso.entities.Departamento;
 import com.acceso.acceso.entities.Estado;
 import com.acceso.acceso.entities.Fila;
+import com.acceso.acceso.entities.FilaDepartamento;
 import com.acceso.acceso.entities.Ingreso;
+import com.acceso.acceso.entities.IngresoDepartamento;
 import com.acceso.acceso.entities.Modulo;
+import com.acceso.acceso.repositories.DepartamentoRepository;
+import com.acceso.acceso.repositories.FilaDepartamentoRepository;
 import com.acceso.acceso.repositories.FilaRepository;
-import com.acceso.acceso.services.interfaces.ApiPersonaService;
+import com.acceso.acceso.repositories.IngresoDepartamentoRepository;
 import com.acceso.acceso.services.interfaces.ApiUsuariosService;
 import com.acceso.acceso.services.interfaces.EstadoService;
 import com.acceso.acceso.services.interfaces.FilaService;
-import com.acceso.acceso.services.interfaces.IngresoService;
 import com.acceso.acceso.services.interfaces.ModuloService;
 
 @Service
 public class FilaServiceImpl implements FilaService {
 
-    private final FilaRepository filaRepository;
+        private final FilaRepository filaRepository;
 
-    private final ApiPersonaService apiPersonaService;
+        private final ApiUsuariosService apiUsuariosService;
 
-    private final ApiUsuariosService apiUsuariosService;
+        private final EstadoService estadoService;
 
-    private final EstadoService estadoService;
+        private final ModuloService moduloService;
 
-    private final ModuloService moduloService;
+        private final FilaDepartamentoRepository filaDepartamentoRepository;
 
-    private final IngresoService ingresoService;
+        private final DepartamentoRepository departamentoRepository;
 
-    public FilaServiceImpl(FilaRepository filaRepository, ApiPersonaService apiPersonaService,
-            ApiUsuariosService apiUsuariosService,
-            EstadoService estadoService,
-            ModuloService moduloService,
-            IngresoService ingresoService) {
-        this.filaRepository = filaRepository;
-        this.apiPersonaService = apiPersonaService;
-        this.apiUsuariosService = apiUsuariosService;
-        this.estadoService = estadoService;
-        this.moduloService=moduloService;
-        this.ingresoService=ingresoService;
-    }
+        private final IngresoDepartamentoRepository ingresoDepartamentoRepository;
 
-    @Override
-    public List<FilaDto> getFilasByDepartamento(Long departamentoId) {
-        List<Fila> filas = filaRepository.findFilasByDepartamento(departamentoId);
-        return filas.stream().map(this::convertFilaDto).toList();
-    }
-
-    @Override
-    public FilaDto convertFilaDto(Fila fila) {
-        FilaDto dto = new FilaDto();
-        dto.setId(fila.getId());
-        dto.setHoraToma(fila.getHoraToma());
-        dto.setEstado(fila.getEstado().getNombre());
-        dto.setIngresoId(fila.getIngreso().getId());
-        dto.setModulo(Optional.ofNullable(fila.getIngreso().getModulo())
-                .map(Modulo::getNombre)
-                .orElse(null));
-        dto.setHoraIngreso(fila.getIngreso().getHoraIngreso());
-        dto.setIdModulo(Optional.ofNullable(fila.getIngreso().getModulo())
-                .map(Modulo::getId)
-                .orElse(null));
-
-        PersonaResponse persona = apiPersonaService.getPersonaInfo(fila.getIngreso().getPersona().getRut());
-
-        dto.setNombre(
-                persona.getNombres().concat(" ")
-                        .concat(persona.getPaterno().concat(" ").concat(persona.getMaterno())));
-        return dto;
-    }
-
-    @Override
-    public FilaResponse assignIngreso(Long id, String login, Long moduloId) {
-
-        Fila fila = filaRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException(
-                        "Fila " + id + " no existe"));
-
-        Ingreso ingreso = fila.getIngreso();
-
-        Estado estado = estadoService.findByNombre("EN ATENCION");
-
-        UsuarioResponse usuarioResponse = apiUsuariosService.getUsuario(login);
-        if (usuarioResponse == null) {
-            throw new IllegalArgumentException("Usuario con login " + login + " no existe");
+        public FilaServiceImpl(FilaRepository filaRepository,
+                        ApiUsuariosService apiUsuariosService,
+                        EstadoService estadoService,
+                        ModuloService moduloService,
+                        IngresoDepartamentoRepository ingresoDepartamentoRepository,
+                        FilaDepartamentoRepository filaDepartamentoRepository,
+                        DepartamentoRepository departamentoRepository) {
+                this.filaRepository = filaRepository;
+                this.apiUsuariosService = apiUsuariosService;
+                this.estadoService = estadoService;
+                this.moduloService = moduloService;
+                this.filaDepartamentoRepository = filaDepartamentoRepository;
+                this.departamentoRepository = departamentoRepository;
+                this.ingresoDepartamentoRepository = ingresoDepartamentoRepository;
         }
 
-        Modulo modulo = moduloService.findById(moduloId);
-                
+        @Override
+        public FilaResponse assignIngreso(AssignRequest request) {
 
-        ingreso.setAsignadoA(login);
-        ingreso.setModulo(modulo);
-        ingresoService.save(ingreso);
+                UsuarioResponse usuarioResponse = apiUsuariosService.getUsuario(request.getLogin());
+                if (usuarioResponse == null) {
+                        throw new IllegalArgumentException("Usuario con login " + request.getLogin() + " no existe");
+                }
 
-        fila.setEstado(estado);
-        fila.setHoraToma(LocalDateTime.now());
-        filaRepository.save(fila);
+                Fila fila = filaRepository.findById(request.getId())
+                                .orElseThrow(() -> new IllegalArgumentException(
+                                                "Fila " + request.getId() + " no existe"));
 
-        return new FilaResponse(fila.getId(), ingreso.getAsignadoA(), fila.getEstado().getNombre());
-    }
+                Departamento departamento = departamentoRepository.findById(usuarioResponse.getIdDepartamento())
+                                .orElseThrow(() -> new IllegalArgumentException("No existe departamento"));
 
-    @Override
-    public void unassignIngreso(Long id) {
-        Fila fila = filaRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException(
-                        "Fila con ID " + id + " no encontrada"));
+                List<FilaDepartamento> listFilaDepartamento = filaDepartamentoRepository.findByFila(fila);
 
-        Estado estado = estadoService.findByNombre("DESASIGNADO");
+                FilaDepartamento filaDepartamento = listFilaDepartamento.stream()
+                                .filter(f -> f.getDepartamento().getId().equals(usuarioResponse.getIdDepartamento()))
+                                .findFirst()
+                                .orElseThrow(() -> new IllegalArgumentException("No existe departamento"));
 
-        fila.setEstado(estado);
-        fila.setHoraToma(null);
-        filaRepository.save(fila);
-    }
+                Estado estado = estadoService.findByNombre("EN ATENCION");
 
-    @Override
-    public FilaResponse finishIngreso(Long id) {
-        Fila fila = filaRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException(
-                        "Fila con ID " + id + " no encontrada"));
+                Modulo modulo = moduloService.findById(request.getModuloId());
 
-        Ingreso ingreso = fila.getIngreso();
+                Ingreso ingreso = fila.getIngreso();
 
-        Estado estado = estadoService.findByNombre("FINALIZADO");
+                IngresoDepartamento ingresoDepartamento = new IngresoDepartamento();
 
-        fila.setEstado(estado);
-        fila.setHoraFinalizacion(LocalDateTime.now());
-        filaRepository.save(fila);
+                ingresoDepartamento.setDepartamento(departamento);
+                ingresoDepartamento.setIngreso(ingreso);
 
-        return new FilaResponse(fila.getId(), ingreso.getAsignadoA(), fila.getEstado().getNombre());
-    }
+                filaDepartamento.setEstado(estado);
+                filaDepartamento.setFila(fila);
+                filaDepartamento.setDepartamento(departamento);
+                filaDepartamento.setModulo(modulo);
+                filaDepartamento.setAsignadoA(request.getLogin());
+                filaDepartamento.setHoraToma(LocalDateTime.now());
 
-    @Override
-    public Fila save(Fila fila) {
-        return filaRepository.save(fila);
-    }
+                filaDepartamentoRepository.save(filaDepartamento);
+
+                ingresoDepartamentoRepository.save(ingresoDepartamento);
+
+                return new FilaResponse(fila.getId(), filaDepartamento.getAsignadoA(),
+                                filaDepartamento.getEstado().getNombre());
+        }
+
+        @Override
+        public void unassignIngreso(UnassigRequest request) {
+                Fila fila = filaRepository.findById(request.getId())
+                                .orElseThrow(() -> new IllegalArgumentException(
+                                                "Fila con ID " + request.getId() + " no encontrada"));
+
+                UsuarioResponse usuarioResponse = apiUsuariosService.getUsuario(request.getLogin());
+                if (usuarioResponse == null) {
+                        throw new IllegalArgumentException("Usuario con login " + request.getLogin() + " no existe");
+                }
+
+                Estado estado = estadoService.findByNombre("DESASIGNADO");
+
+                List<FilaDepartamento> listFilaDepartamento = filaDepartamentoRepository.findByFila(fila);
+
+                FilaDepartamento filaDepartamento = listFilaDepartamento.stream()
+                                .filter(f -> f.getDepartamento().getId().equals(usuarioResponse.getIdDepartamento())
+                                                && f.getFila().getId().equals(fila.getId()))
+                                .findFirst()
+                                .orElseThrow(() -> new IllegalArgumentException("No existe la fila"));
+
+                filaDepartamento.setEstado(estado);
+                filaDepartamento.setAsignadoA(null);
+                filaDepartamento.setModulo(null);
+                filaDepartamento.setHoraToma(null);
+                filaDepartamentoRepository.save(filaDepartamento);
+
+        }
+
+        @Override
+        public FilaResponse finishIngreso(FinishRequest request) {
+                Fila fila = filaRepository.findById(request.getId())
+                                .orElseThrow(() -> new IllegalArgumentException(
+                                                "Fila con ID " + request.getId() + " no encontrada"));
+
+                UsuarioResponse usuarioResponse = apiUsuariosService.getUsuario(request.getLogin());
+                if (usuarioResponse == null) {
+                        throw new IllegalArgumentException("Usuario con login " + request.getLogin() + " no existe");
+                }
+
+                List<FilaDepartamento> listFilaDepartamento = filaDepartamentoRepository.findByFila(fila);
+
+                FilaDepartamento filaDepartamento = listFilaDepartamento.stream()
+                                .filter(f -> f.getDepartamento().getId().equals(usuarioResponse.getIdDepartamento())
+                                                && f.getFila().getId().equals(fila.getId()))
+                                .findFirst()
+                                .orElseThrow(() -> new IllegalArgumentException("No existe la fila"));
+
+                Estado estado = estadoService.findByNombre("FINALIZADO");
+
+                filaDepartamento.setEstado(estado);
+                filaDepartamento.setHoraFinalizacion(LocalDateTime.now());
+                filaDepartamentoRepository.save(filaDepartamento);
+
+                return new FilaResponse(fila.getId(), filaDepartamento.getAsignadoA(),
+                                filaDepartamento.getEstado().getNombre());
+        }
+
+        @Override
+        public Fila save(Fila fila) {
+                return filaRepository.save(fila);
+        }
 
 }

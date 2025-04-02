@@ -4,7 +4,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
 import com.acceso.acceso.entities.Ingreso;
-import com.acceso.acceso.entities.Persona;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -12,9 +11,8 @@ import java.util.Optional;
 
 public interface IngresoRepository extends JpaRepository<Ingreso, Long> {
 
-    Optional<Ingreso> findByPersona(Persona persona);
 
-    Optional<Ingreso> findTopByPersonaOrderByHoraIngresoDesc(Persona persona);
+    Optional<Ingreso> findTopByRutOrderByHoraIngresoDesc(Integer rut);
 
     List<Ingreso> findByhoraIngresoBetween(LocalDateTime fechaInicio, LocalDateTime fechaFin);
 
@@ -35,5 +33,8 @@ public interface IngresoRepository extends JpaRepository<Ingreso, Long> {
             "WHERE DATE(hora_ingreso) = CURRENT_DATE() " +
             "GROUP BY HOUR(hora_ingreso), DATE_FORMAT(hora_ingreso, '%Y-%m-%d')", nativeQuery = true)
     List<Object[]> findIngresosByHour();
+    
+
+    
 
 }

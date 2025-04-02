@@ -70,4 +70,8 @@ public class PersonaResponse {
         this.email = email;
     }
 
+    public String getNombreCompleto(){
+        return this.nombres.concat(" ").concat(this.paterno).concat(" ").concat(this.materno);
+    }
+
 }

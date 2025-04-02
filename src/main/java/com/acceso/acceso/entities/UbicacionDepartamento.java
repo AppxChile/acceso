@@ -20,18 +20,12 @@ public class UbicacionDepartamento {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    private String nombreUbicacion;
+
+    
+
     @Column(nullable = false)
-    private String direccion;
-
-    private String numero;
-
-    private String piso;
-
-    private String referencia;
-
-    private Double latitud;
-
-    private Double longitud;
+    private Long dirId;
 
     @OneToMany(mappedBy = "ubicacion", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Departamento> departamentos = new HashSet<>();
@@ -44,52 +38,12 @@ public class UbicacionDepartamento {
         this.id = id;
     }
 
-    public String getDireccion() {
-        return direccion;
+    public Long getDirId() {
+        return dirId;
     }
 
-    public void setDireccion(String direccion) {
-        this.direccion = direccion;
-    }
-
-    public String getNumero() {
-        return numero;
-    }
-
-    public void setNumero(String numero) {
-        this.numero = numero;
-    }
-
-    public String getPiso() {
-        return piso;
-    }
-
-    public void setPiso(String piso) {
-        this.piso = piso;
-    }
-
-    public String getReferencia() {
-        return referencia;
-    }
-
-    public void setReferencia(String referencia) {
-        this.referencia = referencia;
-    }
-
-    public Double getLatitud() {
-        return latitud;
-    }
-
-    public void setLatitud(Double latitud) {
-        this.latitud = latitud;
-    }
-
-    public Double getLongitud() {
-        return longitud;
-    }
-
-    public void setLongitud(Double longitud) {
-        this.longitud = longitud;
+    public void setDirId(Long dirId) {
+        this.dirId = dirId;
     }
 
     public Set<Departamento> getDepartamentos() {
@@ -99,6 +53,17 @@ public class UbicacionDepartamento {
     public void setDepartamentos(Set<Departamento> departamentos) {
         this.departamentos = departamentos;
     }
+
+    public String getNombreUbicacion() {
+        return nombreUbicacion;
+    }
+
+    public void setNombreUbicacion(String nombreUbicacion) {
+        this.nombreUbicacion = nombreUbicacion;
+    }
+
+
+   
 
  
 }

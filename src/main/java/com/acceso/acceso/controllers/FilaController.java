@@ -8,12 +8,18 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.acceso.acceso.dto.AssignRequest;
 import com.acceso.acceso.dto.FilaDto;
 import com.acceso.acceso.dto.FilaResponse;
+import com.acceso.acceso.dto.FinishRequest;
+import com.acceso.acceso.dto.UnassigRequest;
+import com.acceso.acceso.entities.Departamento;
+import com.acceso.acceso.repositories.DepartamentoRepository;
+import com.acceso.acceso.services.interfaces.FilaDepartamentoService;
 import com.acceso.acceso.services.interfaces.FilaService;
 
 @RestController
@@ -23,22 +29,23 @@ public class FilaController {
 
     private final FilaService filaService;
 
-    public FilaController(FilaService filaService) {
-        this.filaService = filaService;
-    }
+    private final FilaDepartamentoService filaDepartamentoService;
 
-    @GetMapping("/departamento/{id}")
-    public ResponseEntity<List<FilaDto>> obtenerFilasPorDepartamento(@PathVariable Long id) {
-        return ResponseEntity.ok(filaService.getFilasByDepartamento(id));
+    private final DepartamentoRepository departamentoRepository;
+
+    public FilaController(FilaService filaService, DepartamentoRepository departamentoRepository,
+            FilaDepartamentoService filaDepartamentoService) {
+        this.filaService = filaService;
+        this.departamentoRepository = departamentoRepository;
+        this.filaDepartamentoService = filaDepartamentoService;
     }
 
     @PostMapping("/asignar")
-    public ResponseEntity<Object> assignFila(@RequestParam Long id, @RequestParam String login,
-            @RequestParam Long moduloId) {
+    public ResponseEntity<Object> assignFila(@RequestBody AssignRequest request) {
 
         try {
 
-            FilaResponse filaResponse = filaService.assignIngreso(id, login, moduloId);
+            FilaResponse filaResponse = filaService.assignIngreso(request);
 
             return ResponseEntity.status(HttpStatus.CREATED).body(filaResponse);
 
@@ -50,27 +57,27 @@ public class FilaController {
     }
 
     @PostMapping("/desasiginar")
-    public void unassignFila(@RequestParam Long id) {
+    public void unassignFila(@RequestBody UnassigRequest request) {
 
         try {
 
-            filaService.unassignIngreso(id);
+            filaService.unassignIngreso(request);
 
             ResponseEntity.status(HttpStatus.OK);
 
         } catch (Exception e) {
 
-             ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+            ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
 
     }
 
     @PostMapping("/finalizar")
-    public ResponseEntity<Object> finishFila(@RequestParam Long id) {
+    public ResponseEntity<Object> finishFila(@RequestBody FinishRequest request) {
 
         try {
 
-            FilaResponse filaResponse = filaService.finishIngreso(id);
+            FilaResponse filaResponse = filaService.finishIngreso(request);
 
             return ResponseEntity.status(HttpStatus.CREATED).body(filaResponse);
 
@@ -79,6 +86,29 @@ public class FilaController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
 
+    }
+
+    @GetMapping("/byDepto/{id}")
+    public ResponseEntity<Object> getFilasByDepto(@PathVariable Long id) {
+        try {
+            Departamento departamento = getDeptoById(id);
+
+            List<FilaDto> response = filaDepartamentoService.getByDepartamento(departamento);
+
+            if (response.isEmpty()) {
+                return ResponseEntity.notFound().build();
+            }
+
+            return ResponseEntity.ok(response);
+
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
+    }
+
+    private Departamento getDeptoById(Long id) {
+        return departamentoRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("No existe el depto " + id));
     }
 
 }

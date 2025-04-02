@@ -13,4 +13,6 @@ public interface FilaRepository extends JpaRepository<Fila, Long> {
     @Query("SELECT f FROM Fila f JOIN f.ingreso i JOIN i.ingresoDepartamentos id WHERE id.departamento.id = :departamentoId")
     List<Fila> findFilasByDepartamento(@Param("departamentoId") Long departamentoId);
 
+    
+
 }

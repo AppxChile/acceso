@@ -7,6 +7,7 @@ public class IngresoRequest {
     private Integer rut;
 
     private String serie;
+    private Long idUbicacion;
     private Set<Long> idDepartamentos;
 
     public Integer getRut() {
@@ -31,6 +32,14 @@ public class IngresoRequest {
 
     public void setIdDepartamentos(Set<Long> idDepartamentos) {
         this.idDepartamentos = idDepartamentos;
+    }
+
+    public Long getIdUbicacion() {
+        return idUbicacion;
+    }
+
+    public void setIdUbicacion(Long idUbicacion) {
+        this.idUbicacion = idUbicacion;
     }
 
 }

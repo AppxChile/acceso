@@ -1,25 +1,28 @@
 package com.acceso.acceso.entities;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
 
 @Entity
-public class IngresoDepartamento {
+@Table(name = "ingreso_ubicacion")
+public class IngresoUbicacion {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @ManyToOne
-    @JsonIgnore
+    @JoinColumn(name = "ingreso_id", nullable = false)
     private Ingreso ingreso;
 
     @ManyToOne
-    private Departamento departamento;
+    @JoinColumn(name = "ubicacion_departamento_id", nullable = false)
+    private UbicacionDepartamento ubicacionDepartamento;
 
     public Long getId() {
         return id;
@@ -37,16 +40,14 @@ public class IngresoDepartamento {
         this.ingreso = ingreso;
     }
 
-    public Departamento getDepartamento() {
-        return departamento;
+    public UbicacionDepartamento getUbicacionDepartamento() {
+        return ubicacionDepartamento;
     }
 
-    public void setDepartamento(Departamento departamento) {
-        this.departamento = departamento;
+    public void setUbicacionDepartamento(UbicacionDepartamento ubicacionDepartamento) {
+        this.ubicacionDepartamento = ubicacionDepartamento;
     }
 
-    public Long getIdDepartamento(){
-        return this.departamento.getId();
-    }
+    
 
 }

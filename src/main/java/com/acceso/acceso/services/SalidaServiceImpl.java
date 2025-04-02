@@ -9,13 +9,11 @@ import org.springframework.stereotype.Service;
 import com.acceso.acceso.dto.PersonaResponse;
 import com.acceso.acceso.dto.SalidasByFechasDto;
 import com.acceso.acceso.entities.Ingreso;
-import com.acceso.acceso.entities.Persona;
 import com.acceso.acceso.entities.Salida;
 import com.acceso.acceso.exceptions.MyExceptions;
+import com.acceso.acceso.repositories.IngresoRepository;
 import com.acceso.acceso.repositories.SalidaRepository;
 import com.acceso.acceso.services.interfaces.ApiPersonaService;
-import com.acceso.acceso.services.interfaces.IngresoService;
-import com.acceso.acceso.services.interfaces.PersonaService;
 import com.acceso.acceso.services.interfaces.SalidaService;
 
 @Service
@@ -23,26 +21,24 @@ public class SalidaServiceImpl implements SalidaService {
 
     private final SalidaRepository salidaRepository;
 
-    private final PersonaService personaService;
 
     private final ApiPersonaService apiPersonaService;
 
-    private final IngresoService ingresoService;
+    private final IngresoRepository ingresoRepository;
 
-    public SalidaServiceImpl(SalidaRepository salidaRepository, PersonaService personaService,
+    public SalidaServiceImpl(SalidaRepository salidaRepository, 
             ApiPersonaService apiPersonaService,
-            IngresoService ingresoService) {
+            IngresoRepository ingresoRepository) {
         this.salidaRepository = salidaRepository;
-        this.personaService = personaService;
         this.apiPersonaService = apiPersonaService;
-        this.ingresoService = ingresoService;
+        this.ingresoRepository = ingresoRepository;
     }
 
     @Override
     public Salida createSalida(Integer rut) {
-        Persona persona = personaService.findByRut(rut);
 
-        Ingreso ingreso = ingresoService.findTopByPersonaOrderByHoraIngresoDesc(persona);
+        Ingreso ingreso = ingresoRepository.findTopByRutOrderByHoraIngresoDesc(rut)
+                .orElseThrow(() -> new IllegalArgumentException("No existe la persona"));
 
         Optional<Salida> optSalida = salidaRepository.findByIngreso(ingreso);
 
@@ -69,7 +65,7 @@ public class SalidaServiceImpl implements SalidaService {
                     dto.setFechaIngreso(sali.getIngreso().getHoraIngreso());
 
                     PersonaResponse personaResponse = apiPersonaService
-                            .getPersonaInfo(sali.getIngreso().getPersona().getRut());
+                            .getPersonaInfo(sali.getIngreso().getRut());
 
                     dto.setRut(personaResponse.getRut().toString().concat("-").concat(personaResponse.getVrut()));
 
@@ -94,7 +90,7 @@ public class SalidaServiceImpl implements SalidaService {
 
     @Override
     public Optional<Salida> findByIngreso(Ingreso ingreso) {
-       return salidaRepository.findByIngreso(ingreso);
+        return salidaRepository.findByIngreso(ingreso);
     }
 
 }

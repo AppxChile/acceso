@@ -1,12 +1,16 @@
 package com.acceso.acceso.entities;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Set;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 
 @Entity
 public class Fila {
@@ -14,16 +18,29 @@ public class Fila {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private LocalDateTime horaToma;
+    private LocalDateTime horaIngresoFila;
 
-    private LocalDateTime horaFinalizacion;
+    public LocalDateTime getHoraIngresoFila() {
+        return horaIngresoFila;
+    }
+
+    public void setHoraIngresoFila(LocalDateTime horaIngresoFila) {
+        this.horaIngresoFila = horaIngresoFila;
+    }
+
+    public Set<FilaDepartamento> getFilaDepartamentos() {
+        return filaDepartamentos;
+    }
+
+    public void setFilaDepartamentos(Set<FilaDepartamento> filaDepartamentos) {
+        this.filaDepartamentos = filaDepartamentos;
+    }
 
     @ManyToOne
     private Ingreso ingreso;
 
-
-    @ManyToOne
-    private Estado estado;
+    @OneToMany(mappedBy = "fila", cascade = CascadeType.ALL)
+    private Set<FilaDepartamento> filaDepartamentos = new HashSet<>();
 
     public Long getId() {
         return id;
@@ -31,14 +48,6 @@ public class Fila {
 
     public void setId(Long id) {
         this.id = id;
-    }
-
-    public LocalDateTime getHoraToma() {
-        return horaToma;
-    }
-
-    public void setHoraToma(LocalDateTime horaToma) {
-        this.horaToma = horaToma;
     }
 
     public Ingreso getIngreso() {
@@ -49,21 +58,5 @@ public class Fila {
         this.ingreso = ingreso;
     }
 
-   
-    public Estado getEstado() {
-        return estado;
-    }
-
-    public void setEstado(Estado estado) {
-        this.estado = estado;
-    }
-
-    public LocalDateTime getHoraFinalizacion() {
-        return horaFinalizacion;
-    }
-
-    public void setHoraFinalizacion(LocalDateTime horaFinalizacion) {
-        this.horaFinalizacion = horaFinalizacion;
-    }
-
+    
 }

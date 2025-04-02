@@ -1,22 +1,19 @@
 package com.acceso.acceso.services.interfaces;
 
-import java.util.List;
-
-import com.acceso.acceso.dto.FilaDto;
+import com.acceso.acceso.dto.AssignRequest;
 import com.acceso.acceso.dto.FilaResponse;
+import com.acceso.acceso.dto.FinishRequest;
+import com.acceso.acceso.dto.UnassigRequest;
 import com.acceso.acceso.entities.Fila;
 
 public interface FilaService {
 
-    List<FilaDto> getFilasByDepartamento(Long departamentoId);
 
-    FilaDto convertFilaDto(Fila fila);
+    FilaResponse assignIngreso(AssignRequest request);
 
-    FilaResponse assignIngreso(Long id, String login, Long moduloId);
+    void unassignIngreso(UnassigRequest request);
 
-    void unassignIngreso(Long id);
-
-    FilaResponse finishIngreso(Long id);
+    FilaResponse finishIngreso(FinishRequest request);
 
     Fila save(Fila fila);
 

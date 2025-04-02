@@ -24,6 +24,7 @@ import com.acceso.acceso.dto.IngresoWithouSalidaDto;
 import com.acceso.acceso.dto.IngresosByFechasDto;
 import com.acceso.acceso.dto.IngresosByHorasDto;
 import com.acceso.acceso.exceptions.MyExceptions;
+import com.acceso.acceso.services.interfaces.IngresoQueryService;
 import com.acceso.acceso.services.interfaces.IngresoService;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -35,8 +36,11 @@ public class IngresoController {
 
     private final IngresoService ingresoService;
 
-    public IngresoController(IngresoService ingresoService) {
+    private final IngresoQueryService ingresoQueryService;
+
+    public IngresoController(IngresoService ingresoService, IngresoQueryService ingresoQueryService) {
         this.ingresoService = ingresoService;
+        this.ingresoQueryService=ingresoQueryService;
     }
 
     @PostMapping
@@ -67,7 +71,7 @@ public class IngresoController {
         LocalDateTime inicioDelDia = fechaInicio.atStartOfDay(); // 00:00:00 del día
         LocalDateTime finDelDia = fechaFin.atTime(LocalTime.MAX); // 23:59:59.999999 del dí
         try {
-            List<IngresosByFechasDto> ingresoList = ingresoService.getIngresosBetweenDates(inicioDelDia, finDelDia);
+            List<IngresosByFechasDto> ingresoList = ingresoQueryService.getIngresosBetweenDates(inicioDelDia, finDelDia);
             return ResponseEntity.status(HttpStatus.CREATED).body(ingresoList);
 
         } catch (MyExceptions e) {
@@ -85,7 +89,7 @@ public class IngresoController {
     @GetMapping("ingresos-sin-salida")
     public ResponseEntity<List<IngresoWithouSalidaDto>> getIngresosSalidaNull() {
         try {
-            List<IngresoWithouSalidaDto> ingresos = ingresoService.getIngresoSalidaNull();
+            List<IngresoWithouSalidaDto> ingresos = ingresoQueryService.getIngresoSalidaNull();
             return ResponseEntity.ok(ingresos);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
@@ -97,7 +101,7 @@ public class IngresoController {
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaInicio,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaFin) {
         try {
-            List<IngresoByDeptosDates> ingresos = ingresoService.getIngresosByDeptoBetweenDate(
+            List<IngresoByDeptosDates> ingresos = ingresoQueryService.getIngresosByDeptoBetweenDate(
                     fechaInicio.atStartOfDay(), fechaFin.atTime(23, 59, 59));
             return ResponseEntity.ok(ingresos);
         } catch (Exception e) {
@@ -109,7 +113,7 @@ public class IngresoController {
     @GetMapping("/por-dia")
     public ResponseEntity<List<IngresosByHorasDto>> getIngresosByHourDay() {
         try {
-            List<IngresosByHorasDto> ingresos = ingresoService.getIngresosDayByHour();
+            List<IngresosByHorasDto> ingresos = ingresoQueryService.getIngresosDayByHour();
             return ResponseEntity.ok(ingresos);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();

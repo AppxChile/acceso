@@ -17,7 +17,7 @@ public class Estado {
     private String nombre;
 
     @OneToMany(mappedBy = "estado")
-    private List<Fila> filas;
+    private List<FilaDepartamento> filas;
 
     public Long getId() {
         return id;
@@ -35,12 +35,14 @@ public class Estado {
         this.nombre = nombre;
     }
 
-    public List<Fila> getFilas() {
+    public List<FilaDepartamento> getFilas() {
         return filas;
     }
 
-    public void setFilas(List<Fila> filas) {
+    public void setFilas(List<FilaDepartamento> filas) {
         this.filas = filas;
     }
+
+   
 
 }
