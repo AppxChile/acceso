@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.acceso.acceso.dto.ListDepartamentosDto;
 import com.acceso.acceso.dto.UbicacionDto;
+import com.acceso.acceso.dto.UbicacionResponse;
 import com.acceso.acceso.services.interfaces.DepartamentoService;
 import com.acceso.acceso.services.interfaces.UbicacionDepartamentoService;
 
@@ -36,10 +37,17 @@ public class DepartamentoController {
     }
 
     @GetMapping("/ubicaciones/{id}")
-    public ResponseEntity<UbicacionDto> getUbicaciones(@PathVariable Long id) {
+    public ResponseEntity<UbicacionDto> getUbicacionesById(@PathVariable Long id) {
         UbicacionDto ubicacion = ubicacionDepartamentoService.getUbicaciones(id);
         return ResponseEntity.ok(ubicacion);
     }
+
+    @GetMapping("/ubicaciones/list")
+    public ResponseEntity<List<UbicacionResponse>> getUbicaciones() {
+        List<UbicacionResponse> ubicacion = ubicacionDepartamentoService.findAll();
+        return ResponseEntity.ok(ubicacion);
+    }
+
 
 
 }

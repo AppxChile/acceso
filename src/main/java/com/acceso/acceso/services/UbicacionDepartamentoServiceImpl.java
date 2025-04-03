@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import com.acceso.acceso.dto.DepartamentoResponse;
 import com.acceso.acceso.dto.ListDepartamentosDto;
 import com.acceso.acceso.dto.UbicacionDto;
+import com.acceso.acceso.dto.UbicacionResponse;
 import com.acceso.acceso.entities.UbicacionDepartamento;
 import com.acceso.acceso.repositories.UbicacionDepartamentoRepository;
 import com.acceso.acceso.services.interfaces.ApiDepartamentoService;
@@ -28,8 +29,12 @@ public class UbicacionDepartamentoServiceImpl implements UbicacionDepartamentoSe
     }
 
     @Override
-    public List<UbicacionDepartamento> findAll() {
-        return ubicacionDepartamentoRepository.findAll();
+    public List<UbicacionResponse> findAll() {
+
+        List<UbicacionDepartamento> response = ubicacionDepartamentoRepository.findAll();
+
+        return response.stream().map(r -> new UbicacionResponse(r.getId(), r.getNombreUbicacion())).toList();
+
     }
 
     @Override
@@ -42,20 +47,19 @@ public class UbicacionDepartamentoServiceImpl implements UbicacionDepartamentoSe
         ubicacionDto.setNombreUbicacion(ubicacionDepartamento.getNombreUbicacion());
 
         Set<ListDepartamentosDto> deptos = ubicacionDepartamento.getDepartamentos()
-                                   .stream()
-                                    .map(u ->{
-                                    ListDepartamentosDto depto = new ListDepartamentosDto();
+                .stream()
+                .map(u -> {
+                    ListDepartamentosDto depto = new ListDepartamentosDto();
 
-                                    depto.setId(u.getId());
-                                    DepartamentoResponse departamentoResponse = apiDepartamentoService.getDepartamentoById(u.getId());
-                                    depto.setNombreDepartamento(departamentoResponse.getNombreDepartamento());
-                                    
-                                    return depto;
+                    depto.setId(u.getId());
+                    DepartamentoResponse departamentoResponse = apiDepartamentoService.getDepartamentoById(u.getId());
+                    depto.setNombreDepartamento(departamentoResponse.getNombreDepartamento());
 
-                                   }).collect(Collectors.toSet());
+                    return depto;
+
+                }).collect(Collectors.toSet());
         ubicacionDto.setDepartamentos(deptos);
 
-        
         return ubicacionDto;
 
     }
