@@ -135,4 +135,8 @@ public class FilaDepartamento {
         return this.fila.getIngreso().getRut();
     }
 
+    public Long getFilaId(){
+        return this.fila.getId();
+    }
+
 }

@@ -34,7 +34,7 @@ public class FilaDepartamentoImpl implements FilaDepartamentoService {
 
             PersonaResponse personaResponsa = apiPersonaService.getPersonaInfo(fila.getRutIngreso());
             FilaDto dto = new FilaDto();
-            dto.setId(fila.getId());
+            dto.setId(fila.getFilaId());
             dto.setHoraToma(fila.getHoraToma());
             dto.setEstado(fila.getEstadoNombre());
             dto.setIngresoId(fila.getIngresoId());
