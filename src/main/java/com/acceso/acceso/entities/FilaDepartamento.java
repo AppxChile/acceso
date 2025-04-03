@@ -111,7 +111,11 @@ public class FilaDepartamento {
     }
 
     public String getModuloNombre(){
-        return this.modulo.getNombre();
+        if (this.modulo != null) {
+            return this.modulo.getNombre();
+        } else {
+            return null; // O un valor predeterminado, o lanzar una excepción
+        }
 
     }
 
@@ -120,7 +124,11 @@ public class FilaDepartamento {
     }
 
     public Long getModuloId(){
-        return this.modulo.getId();
+        if (this.modulo != null) {
+            return this.modulo.getId();
+        } else {
+            return null; // O un valor predeterminado, o lanzar una excepción
+        }
     }
 
     public Integer getRutIngreso(){
