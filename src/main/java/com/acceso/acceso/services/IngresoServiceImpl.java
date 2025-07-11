@@ -104,7 +104,7 @@ public class IngresoServiceImpl implements IngresoService {
         Fila fila = new Fila();
 
         fila.setIngreso(ingreso);
-        fila.setHoraIngresoFila(LocalDateTime.now());
+        fila.setHoraIngresoFila(fechaHoraIngreso());
 
         fila = filaService.save(fila);
 
